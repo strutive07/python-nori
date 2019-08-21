@@ -1,4 +1,5 @@
 import os
+import shlex
 
 from pynori.src.dict.dictionary import Dictionary
 from pynori.src.dict.character_definition import CharacterDefinition
@@ -36,7 +37,14 @@ class KnownDictionary(Dictionary):
 		self.sysTrie = Trie()
 		
 		for entry in entries:
-			splits = entry.split(',')
+			# Use shlex. 
+			# to deal with the case: ",",1792,3558,788,SC,*,*,*,*,*,*,*
+			shlex_splitter = shlex.shlex(entry, posix=True)
+			shlex_splitter.whitespace = ','
+			shlex_splitter.whitespace_split = True
+			splits = list(shlex_splitter)
+			#splits = entry.split(',')
+						
 			token = splits[0]
 			
 			morph_inf = dict()
