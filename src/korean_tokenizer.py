@@ -10,7 +10,7 @@ from pynori.src.dict.connection_costs import ConnectionCosts
 from pynori.src.dict.user_dictionary import UserDictionary
 from pynori.src.dict.known_dictionary import KnownDictionary
 from pynori.src.dict.unknown_dictionary import UnknownDictionary
-from pynori.src.dict.character_definition import CharacterDefinition
+from pynori.src.dict.character_definition import CharacterDefinition, character_category_map
 from pynori.src.dictionary_token import DictionaryToken
 from pynori.src.decompound_token import DecompoundToken
 from pynori.src.pos import POS
@@ -80,7 +80,18 @@ class KoreanTokenizer(object):
 		self.positions.get(0).add(0, 0, -1, -1, -1, -1, Type.KNOWN, None, None, None)
 				
 	def set_input(self, in_string):
-		self.buffer.set(in_string)
+		
+		# For Exception: out of character unicode range
+		new_string = ""
+		for ch in in_string:
+			if character_category_map(ch) is None:
+				new_string += ' '	# character_category_map 범위에 없는 경우 그냥 공백으로 대체
+			else:
+				new_string += ch
+		#in_string = in_string.replace('\xa0', ' ')
+		
+		self.buffer.set(new_string)
+		#self.buffer.set(in_string)
 		self.reset_state()
 		
 
