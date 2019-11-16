@@ -11,7 +11,7 @@ Python package for [nori](https://github.com/apache/lucene-solr/tree/master/luce
 
 ```python
 # Usage-1. 'config' file
->>> from pynori.src.korean_analyzer import KoreanAnalyzer
+>>> from pynori.korean_analyzer import KoreanAnalyzer
 >>> nori = KoreanAnalyzer()
 >>> nori.do_analysis("아빠가 방에 들어가신다.")
 {'termAtt': ['아빠', '가', '방', '에', '들어가', '시', 'ᆫ다'],
@@ -22,7 +22,7 @@ Python package for [nori](https://github.com/apache/lucene-solr/tree/master/luce
  'dictTypeAtt': ['KN', 'KN', 'KN', 'KN', 'KN', 'KN', 'KN']}
  
 # Usage-2. argument
->>> from pynori.src.korean_analyzer import KoreanAnalyzer
+>>> from pynori.korean_analyzer import KoreanAnalyzer
 >>> nori = KoreanAnalyzer(decompound_mode='MIXED',
                           discard_punctuation=False,
 			  			  output_unknown_unigrams=True,
@@ -40,10 +40,9 @@ Python package for [nori](https://github.com/apache/lucene-solr/tree/master/luce
 ## Test
 
 ```
-$ python -m unittest -v pynori.src.tests.test_korean_analyzer
-$ python -m unittest -v pynori.src.tests.test_korean_tokenizer
+$ python -m unittest -v tests.test_korean_analyzer
+$ python -m unittest -v tests.test_korean_tokenizer
 ```
-
 
 ## Property
 
@@ -54,7 +53,6 @@ $ python -m unittest -v pynori.src.tests.test_korean_tokenizer
 * Modify token & dictionary objects
 * Not use circular buffer
 * Not use wordID
-
 
 ## TODO
 
