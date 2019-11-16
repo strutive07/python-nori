@@ -1,10 +1,10 @@
 import os
 from configparser import ConfigParser
 
-from pynori.src.korean_tokenizer import KoreanTokenizer
-from pynori.src.korean_posstop_filter import KoreanPOSStopFilter
-from pynori.src.synonym_graph_filter import SynonymGraphFilter
-from pynori.src.preprocessing import Preprocessing
+from pynori.korean_tokenizer import KoreanTokenizer
+from pynori.korean_posstop_filter import KoreanPOSStopFilter
+from pynori.synonym_graph_filter import SynonymGraphFilter
+from pynori.preprocessing import Preprocessing
 
 
 cfg = ConfigParser()
@@ -26,7 +26,12 @@ PATH_USER_DICT = cfg['PATH']['USER_DICT']
 
 
 class KoreanAnalyzer(object):
-	"""Analyzer for Korean that uses morphological analysis.
+	"""Analyzer for Korean text, composed of Pre-/Post-processors, Filters, and Tokenizers.
+
+	KoreanAnalyzer - Users only need to initialize this object.
+	Basic only use tokenizer.
+	Advanced constructs pipeline that consists of Pre-/Post-processors, Filters, and Tokenizers.
+	The order of the pipeline is important.
 	"""
 
 	def __init__(self, 
@@ -45,13 +50,9 @@ class KoreanAnalyzer(object):
 		self.synonym_filter = synonym_filter
 
 	def do_analysis(self, in_string):
-		"""Analyze text data
-		   (1) Preprocessing
-		   (2) Tokenizing
-		   (3) Filtering
-		"""
+		"""Analyze text input string and return tokens"""
 
-		# Preprocessing
+		# Pre-processing
 		if ENG_LOWER:
 			in_string = Preprocessing.lower(in_string)
 		#in_string = Preprocessing.typo(in_string)
@@ -70,5 +71,8 @@ class KoreanAnalyzer(object):
 		# Synonym Filtering
 		if self.synonym_filter:
 			tkn_attr_obj = self.syn_graph_filter.do_filter(tkn_attr_obj)
+
+		# Post-processing
+		# ...
 
 		return tkn_attr_obj.__dict__

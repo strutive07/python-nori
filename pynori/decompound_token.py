@@ -1,5 +1,5 @@
-from pynori.src.pos import POS
-from pynori.src.token import Token
+from pynori.pos import POS
+from pynori.token import Token
 
 
 class DecompoundToken(Token):

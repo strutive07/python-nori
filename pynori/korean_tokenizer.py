@@ -4,22 +4,23 @@ import unicodedata
 from enum import Enum, unique, auto
 from configparser import ConfigParser
 
-from pynori.src.char_unicode import *
-from pynori.src.dict.trie import Trie
-from pynori.src.dict.connection_costs import ConnectionCosts
-from pynori.src.dict.user_dictionary import UserDictionary
-from pynori.src.dict.known_dictionary import KnownDictionary
-from pynori.src.dict.unknown_dictionary import UnknownDictionary
-from pynori.src.dict.character_definition import CharacterDefinition, character_category_map
-from pynori.src.dictionary_token import DictionaryToken
-from pynori.src.decompound_token import DecompoundToken
-from pynori.src.pos import POS
-from pynori.src.token_attribute import TokenAttribute
+from pynori.char_unicode import *
+from pynori.dict.trie import Trie
+from pynori.dict.connection_costs import ConnectionCosts
+from pynori.dict.user_dictionary import UserDictionary
+from pynori.dict.known_dictionary import KnownDictionary
+from pynori.dict.unknown_dictionary import UnknownDictionary
+from pynori.dict.character_definition import CharacterDefinition, character_category_map
+from pynori.dictionary_token import DictionaryToken
+from pynori.decompound_token import DecompoundToken
+from pynori.pos import POS
+from pynori.token_attribute import TokenAttribute
 
 
 cfg = ConfigParser()
-PATH_CUR = os.getcwd()+'/pynori'
+PATH_CUR = os.getcwd()
 cfg.read(PATH_CUR+'/config.ini')
+print('\n\n', PATH_CUR+'/config.ini')
 
 PATH_KN_DICT = cfg['PATH']['KN_DICT']
 PATH_UNK_DICT = cfg['PATH']['UNK_DICT']
@@ -28,22 +29,40 @@ PATH_CONN_COST = cfg['PATH']['CONN_COST']
 
 class Type(object):
 	"""Token type reflecting the original source of this token"""
-	KNOWN = 'KN'		# Known words from the system dictionary.
-	UNKNOWN = 'UKN'		# Unknown words (heuristically segmented).
-	USER = 'US'			# Known words from the user dictionary.
+	KNOWN = 'KN' # Known words from the system dictionary.
+	UNKNOWN = 'UKN' # Unknown words (heuristically segmented).
+	USER = 'US' # Known words from the user dictionary.
 
 #class DecompoundMode(object):
-	"""Token type reflecting the original source of this token"""
-#	NONE = 'NON'		# No decomposition for compound.
-#	DISCARD = 'DIS'		# Decompose compounds and discards the original form (default).
-#	MIXED = 'MIX'		# Decompose compounds and keeps the original form.
+	"""Decompound mode: this determines how the tokenizer handles"""
+#	NONE = 'NON' # No decomposition for compound.
+#	DISCARD = 'DIS' # Decompose compounds and discards the original form (default).
+#	MIXED = 'MIX' # Decompose compounds and keeps the original form.
 
 
 class KoreanTokenizer(object):
-	"""Tokenizer for Korean that uses morphological analysis.
+	"""Tokenizer for Korean text.
 
-	This tokenizer uses a rolling Viterbi search to find the
-	least cost segmentation (path) of the incoming characters.
+	KoreanTokenizer - Split input string into several tokens.
+
+	Parameters
+	----------
+	decompound_mode : {'NONE', 'DISCARD', 'MIXED'}
+		this determines how the tokenizer handles compound words, remaining the root(original) word or not.
+	
+	output_unknown_unigrams : {'True', 'False'}
+		true if outputs unigrams for unknown words.
+
+	discard_punctuation : {'True', 'False'}
+		true if punctuation tokens should be dropped from the output.
+
+	Notes
+	-----
+	This tokenizer uses a rolling viterbi search to find 
+	the least cost segmentation (path) of the incoming characters.
+
+
+
 	"""
 
 	# For safety
@@ -80,12 +99,13 @@ class KoreanTokenizer(object):
 		self.positions.get(0).add(0, 0, -1, -1, -1, -1, Type.KNOWN, None, None, None)
 				
 	def set_input(self, in_string):
-		
+		"""Load input korean string to buffer."""
+
 		# For Exception: out of character unicode range
 		new_string = ""
 		for ch in in_string:
 			if character_category_map(ch) is None:
-				new_string += ' '	# character_category_map 범위에 없는 경우 그냥 공백으로 대체
+				new_string += ' ' # character_category_map 범위에 없는 경우 그냥 공백으로 대체
 			else:
 				new_string += ch
 		#in_string = in_string.replace('\xa0', ' ')
@@ -96,6 +116,7 @@ class KoreanTokenizer(object):
 		
 
 	class Buffer(object):
+		"""Bring the input korean text."""
 
 		def set(self, in_string):
 			self.in_string = in_string
@@ -112,11 +133,11 @@ class KoreanTokenizer(object):
 
 
 	class Position(object):
-		"""Holds all back pointers arriving to this position"""
+		"""Holds all back pointers arriving to this position."""
 
 		def __init__(self):
 			self.pos = 0
-			self.count = 0			# it is array length, not simple index!
+			self.count = 0	# it is array length, not simple index!
 			self.costs = []
 			self.lastRightID = []
 			self.backPos = []
@@ -124,9 +145,10 @@ class KoreanTokenizer(object):
 			self.backIndex = []
 			self.backID = []
 			self.backDictType = []
-			self.backPosType = []	# added
-			self.morphemes = []		# added
-			self.backPosTag = []	# added
+			# below: added for pynori
+			self.backPosType = []
+			self.morphemes = []
+			self.backPosTag = []
 
 		def grow(self):
 			pass
@@ -149,13 +171,14 @@ class KoreanTokenizer(object):
 			self.backPos.append(backPos)
 			self.backWordPos.append(backRPos)
 			self.backIndex.append(backIndex)
-			self.backID.append(backID)				# ID 대신에 그냥 surface 그대로 넣자.
+			self.backID.append(backID) # ID 대신에 그냥 surface 그대로 넣자.
 			self.backDictType.append(backDictType)
-			self.backPosType.append(backPosType)	# added
-			self.morphemes.append(morphemes)		# added
-			self.backPosTag.append(backPosTag)		# added
-			self.count += 1	
-		
+			self.count += 1
+			# below: added for pynori
+			self.backPosType.append(backPosType)
+			self.morphemes.append(morphemes)
+			self.backPosTag.append(backPosTag)
+				
 		def reset(self):
 			self.count = 0
 		
@@ -166,7 +189,8 @@ class KoreanTokenizer(object):
 	(eg, set .pos = N on reuse)...
 	"""
 	class WrappedPositionArray(object):
-		
+		""""""
+
 		def __init__(self):
 			self.positions = []
 			for _ in range(0, 4):
@@ -262,25 +286,27 @@ class KoreanTokenizer(object):
 		#	self.count -= toFree
 
 	def compute_space_penalty(self, leftPOS, numSpaces):	
-		"""
-		Returns the space penalty associated with the provided POS.Tag.
-		  - param leftPOS the left part of speech of the current token.
-		  - param numSpaces the number of spaces before the current token.		
+		"""Returns the space penalty associated with the provided POS.Tag.
+		
+		Arguments:
+		----------
+		leftPOS 
+			the left part of speech of the current token.
+		
+		numSpaces 
+			the number of spaces before the current token.		
 		"""
 		spacePenalty = 0
 		if numSpaces > 0:
 			if leftPOS in ['JKS', 'JKC', 'JKG', 'JKO', 'JKB', 'JKV', 'JKQ', 'JX', 'JC']:
 				spacePenalty = 6000
-			elif leftPOS == 'E' or \
-				leftPOS == 'J' or \
-				leftPOS == 'VCP' or \
-				leftPOS == 'XSA' or \
-				leftPOS == 'XSN' or \
-				leftPOS == 'XSV':
+			elif leftPOS == ['E', 'J', 'VCP', 'XSA', 'XSN', 'XSV']:
 				spacePenalty = 3000
 		return spacePenalty
 
 	def add(self, trie_dict, fromPosData, wordPos, endPos, wordID, type_, dict=None):
+		"""Add the optimal token info to each position."""
+
 		#leftPOS = dict.getLeftPOS(wordID)
 		#wordCost = dict.getWordCost(wordID)
 		#leftID = dict.getLeftId(wordID)
@@ -288,7 +314,7 @@ class KoreanTokenizer(object):
 		wordCost = trie_dict['word_cost']
 		leftID = trie_dict['left_id']
 		rightID = trie_dict['right_id']
-		wordID = trie_dict['surface'] 			# wordID 가 원래 없지만, 그냥 surface로 사용하기로 하자.
+		wordID = trie_dict['surface'] # wordID 가 원래 없지만, 그냥 surface로 사용하기로 하자.
 		backPosType = trie_dict['POS_type']
 		morphemes = trie_dict['morphemes']
 
@@ -326,7 +352,8 @@ class KoreanTokenizer(object):
 
 
 	def increment_token(self):
-		"""
+		"""Excute parse() and save token info. until at the end of string.
+
 		parse() is able to return w/o producing any new tokens,
 		when the tokens it had produced were entirely punctuation.
 		So we loop here until we get a real token or we end:
@@ -357,14 +384,18 @@ class KoreanTokenizer(object):
 		
 		return True
 	
-	""" Incrementally parse some more characters.  This runs
-    the viterbi search forwards "enough" so that we
-    generate some more tokens.  How much forward depends on
-    the chars coming in, since some chars could cause
-    longer-lasting ambiguity in the parsing.  Once the
-    ambiguity is resolved, then we back trace, produce
-    the pending tokens, and return. """
+
 	def parse(self):
+		"""While move from start to end of input string in character unit, find the optimal path.
+
+		Incrementally parse some more characters.  This runs
+	    the viterbi search forwards "enough" so that we
+	    generate some more tokens.  How much forward depends on
+	    the chars coming in, since some chars could cause
+	    longer-lasting ambiguity in the parsing.  Once the
+	    ambiguity is resolved, then we back trace, produce
+	    the pending tokens, and return
+		"""
 
 		if self.verbose:
 			print("\nPARSE")
@@ -395,7 +426,9 @@ class KoreanTokenizer(object):
 
 			if self.pos > self.last_backtrace_pos and posData.count == 1 and isFrontier:
 				# 이 조건은 path 중의성이 없는 조건임. 
-				# 즉, 따로 optimal path 찾을 필요가 없으므로 backtrace 실행.
+				# 따로 optimal path 찾을 필요가 없으므로 backtrace 실행.
+				# backtrace 실행 후 다음 index부터 다시 parse 시작.
+				# 완전한 viterbi 알고리즘이 아닌 이유.
 
 				""" We are at a "frontier", and only one node is
 				alive, so whatever the eventual best path is must
@@ -411,7 +444,7 @@ class KoreanTokenizer(object):
 					""" This means the backtrace only produced
 					punctuation tokens, so we must keep parsing	"""
 
-			if self.pos - self.last_backtrace_pos >= self.MAX_BACKTRACE_GAP:
+			if self.pos - self.last_backtrace_pos >= self.MAX_BACKTRACE_GAP: # 예외처리.
 				""" Safety: if we've buffered too much, force a
 				backtrace now.  We find the least-cost partial
 				path, across all paths, backtrace from it, and
@@ -428,8 +461,7 @@ class KoreanTokenizer(object):
 				leastCost = sys.maxsize
 
 				""" TODO """
-				##
-				##
+				# ...
 
 
 			if self.verbose:
@@ -609,8 +641,12 @@ class KoreanTokenizer(object):
 			pass
 
 	def backtrace(self, endPosData, fromIDX):
-  		# the pending list.  The pending list is then in-reverse
- 		# (last token should be returned first).
+		"""Add tokens in the optimal path to the pending list while backtrace positions of input string.
+
+		   the pending list.  The pending list is then in-reverse
+		   (last token should be returned first).
+		"""
+
 		endPos = endPosData.pos
 
 		if self.verbose:
@@ -690,12 +726,12 @@ class KoreanTokenizer(object):
 							print(" (2)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 
 				else: # token.getPOSType() == POS.Type.COMPOUND
-					morphemes = token.getMorphemes()	# sub words from compound noun
+					morphemes = token.getMorphemes() # sub words from compound noun
 					if morphemes is None: # 이 경우는 거의 없을 듯. 위에 'COMPOUND'를 알고 들어왔기에...
 						self.pending.append(token)
 						if self.verbose:
 							print(" (3)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
-					else:	# sub words from compound noun
+					else: # sub words from compound noun
 						endOffset = backWordPos + length
 						posLen = 0
 						# decompose the compound
@@ -749,9 +785,9 @@ class KoreanTokenizer(object):
 		#	print("  freeBefore pos=" + str(endPos))
 		
 		# Notify the circular buffers that we are done with these positions:
-		# pyNori는 circular buffer를 사용하지 않기에 아래의 과정은 필요 없다. 		
-		#self.buffer.freeBefore(endPos); # 할 필요 없음.
-		#self.positions.freeBefore(endPos); # 하게 되면 self.last_backtrace_pos이 리셋되기 때문에, 포지션이 꼬인다.
+		# pynori는 circular buffer를 사용하지 않기에 아래의 과정은 필요 없다. 		
+		#self.buffer.freeBefore(endPos);
+		#self.positions.freeBefore(endPos); # 만약 실행 하면, self.last_backtrace_pos이 리셋되기 때문에, 포지션이 꼬임.
 	
 	def get_dict(self, type):
 		if type == Type.USER:
@@ -762,17 +798,20 @@ class KoreanTokenizer(object):
 			return self.unk_dict
 
 	def should_filter_token(self, token):
-		tkn = True
+		"""Delete token, where the characters are all punctuation."""
+		is_punct = True
 		for ch in token.getSurfaceForm():
 			if self.is_punctuation(ch) == False:
-				tkn = False
-		return self.discard_punctuation and tkn
+				is_punct = False
+				return self.discard_punctuation and is_punct
+		return self.discard_punctuation and is_punct
+		#return self.discard_punctuation and is_punct
 		#return self.is_punctuation(token.getSurfaceForm()[token.getOffset()])
 
 	def is_punctuation(self, ch):
 		#hex_ch = '0x%04x' % ord(ch)
 		hex_ch = ord(ch)	
-		if hex_ch == 0x318d:	# 'ㆍ'
+		if hex_ch == 0x318d: # 'ㆍ'
 			return True
 		if hex_ch in SPACE_SEPARATOR or \
 		   hex_ch in LINE_SEPARATOR or \

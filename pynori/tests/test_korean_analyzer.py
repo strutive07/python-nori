@@ -3,7 +3,7 @@ Reference: https://github.com/apache/lucene-solr/blob/master/lucene/analysis/nor
 """
 
 import unittest
-from pynori.src.korean_analyzer import KoreanAnalyzer
+from pynori.korean_analyzer import KoreanAnalyzer
 
 
 ## Initization

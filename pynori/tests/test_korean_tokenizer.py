@@ -13,8 +13,8 @@ import os
 import unittest
 from configparser import ConfigParser
 
-from pynori.src.korean_tokenizer import KoreanTokenizer
-from pynori.src.pos import POS
+from pynori.korean_tokenizer import KoreanTokenizer
+from pynori.pos import POS
 
 cfg = ConfigParser()
 PATH_CUR = os.getcwd()+'/pynori'

@@ -1,10 +1,10 @@
 import os
 import shlex
 
-from pynori.src.dict.dictionary import Dictionary
-from pynori.src.dict.character_definition import CharacterDefinition
-from pynori.src.dict.trie import Trie
-from pynori.src.pos import POS
+from pynori.dict.dictionary import Dictionary
+from pynori.dict.character_definition import CharacterDefinition
+from pynori.dict.trie import Trie
+from pynori.pos import POS
 
 
 class KnownDictionary(Dictionary):
