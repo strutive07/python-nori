@@ -26,9 +26,9 @@ pip install pynori
 
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='MIXED',
-                      discard_punctuation=False,
+                      discard_punctuation=True,
                       output_unknown_unigrams=True,
-                      pos_filter=True,
+                      pos_filter=False,
                       stop_tags=['JKS', 'JKB', 'VV', 'EF'])
 
 input_text = "아빠가 방에 들어가신다."
@@ -36,12 +36,12 @@ result = nori.do_analysis(input_text)
 print(result)
 >>>
 
-{'termAtt': ['아빠', ' ', '방', ' ', '신다', '시', '.'],
- 'offsetAtt': [(0, 2), (3, 4), (4, 5), (6, 7), (10, 12), (10, 12), (12, 13)],
- 'posLengthAtt': [1, 1, 1, 1, 2, 1, 1],
- 'posTypeAtt': ['MORP', 'MORP', 'MORP', 'MORP', 'INFL', 'MORP', 'MORP'],
- 'posTagAtt': ['NNG', 'SP', 'NNG', 'SP', 'EP+EF', 'EP', 'SF'],
- 'dictTypeAtt': ['KN', 'UKN', 'KN', 'UKN', 'KN', 'KN', 'KN']}
+{'termAtt': ['아빠', '가', '방', '에', '들어가', '시', 'ᆫ다'],
+ 'offsetAtt': [(0, 2), (2, 3), (4, 5), (5, 6), (7, 10), (10, 12), (10, 12)],
+ 'posLengthAtt': [1, 1, 1, 1, 1, 1, 1],
+ 'posTypeAtt': ['MORP', 'MORP', 'MORP', 'MORP', 'MORP', 'MORP', 'MORP'],
+ 'posTagAtt': ['NNG', 'JKS', 'NNG', 'JKB', 'VV', 'EP', 'EF'],
+ 'dictTypeAtt': ['KN', 'KN', 'KN', 'KN', 'KN', 'KN', 'KN']}
 ```
 
 * argument에 따라 다르게 KoreanAnalyzer를 초기화할 수 있습니다.
