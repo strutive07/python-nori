@@ -26,7 +26,7 @@ pip install pynori
 
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='MIXED',
-                      discard_punctuation=True,
+                      discard_punctuation=False,
                       output_unknown_unigrams=True,
                       pos_filter=True,
                       stop_tags=['JKS', 'JKB', 'VV', 'EF'])
