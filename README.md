@@ -27,12 +27,12 @@ pip install pynori
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='MIXED',
                       discard_punctuation=True,
-			  		  output_unknown_unigrams=True,
+                      output_unknown_unigrams=True,
                       pos_filter=True,
                       stop_tags=['JKS', 'JKB', 'VV', 'EF'])
 
-test_input = "아빠가 방에 들어가신다."
-result = nori.do_analysis(test_input)
+input_text = "아빠가 방에 들어가신다."
+result = nori.do_analysis(input_text)
 print(result)
 >>>
 
@@ -57,7 +57,7 @@ print(result)
 
 ```
 git clone https://github.com/gritmind/python-nori.git
-
+cd python-nori
 python -m unittest -v tests.test_korean_analyzer
 python -m unittest -v tests.test_korean_tokenizer
 ```
