@@ -18,8 +18,9 @@ from pynori.token_attribute import TokenAttribute
 
 
 cfg = ConfigParser()
-PATH_CUR = os.getcwd() + '/pynori'
+#PATH_CUR = os.getcwd() + '/pynori'
 #PATH_CUR = sys.path[0]
+PATH_CUR = os.path.dirname(__file__)
 cfg.read(PATH_CUR+'/config.ini')
 
 PATH_KN_DICT = cfg['PATH']['KN_DICT']

@@ -8,7 +8,8 @@ from pynori.preprocessing import Preprocessing
 
 
 cfg = ConfigParser()
-PATH_CUR = os.getcwd() + '/pynori'
+#PATH_CUR = os.getcwd() + '/pynori'
+PATH_CUR = os.path.dirname(__file__)
 cfg.read(PATH_CUR+'/config.ini')
 
 # PREPROCESSING

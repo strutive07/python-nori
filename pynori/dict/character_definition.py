@@ -8,10 +8,10 @@ import sys
 
 from enum import Enum, unique, auto 
 
-PATH_CUR = sys.path[0]
-PATH_BACK2 = '/'.join(sys.path[0].split('/')[:-2])
-PATH_MECAB_KO_DIC = PATH_BACK2 + '/resources/mecab-ko-dic-2.1.1-20180720'
-PATH_CHAR_DEF = PATH_MECAB_KO_DIC + '/char.def'
+#PATH_CUR = sys.path[0]
+#PATH_BACK2 = '/'.join(sys.path[0].split('/')[:-2])
+#PATH_MECAB_KO_DIC = PATH_BACK2 + '/resources/mecab-ko-dic-2.1.1-20180720'
+#PATH_CHAR_DEF = PATH_MECAB_KO_DIC + '/char.def'
 
 """
 @unique
