@@ -80,6 +80,7 @@ python -m unittest -v tests.test_korean_tokenizer
 ## TODO
 * Synonym Graph Filter
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
+* Optimize algorithms and data structures, to be faster
 
 ## License
 * Apache License 2.0
