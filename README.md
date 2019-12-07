@@ -78,6 +78,7 @@ python -m unittest -v tests.test_korean_tokenizer
 
 
 ## TODO
+* Character Filter
 * Synonym Graph Filter
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 * Optimize algorithms and data structures, to be faster
