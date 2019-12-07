@@ -44,13 +44,13 @@ print(result)
  'dictTypeAtt': ['KN', 'KN', 'KN', 'KN', 'KN', 'KN', 'KN']}
 ```
 
-* argument에 따라 다르게 KoreanAnalyzer를 초기화할 수 있습니다.
-* result는 딕셔너리 타입이므로 원하는 key만 따로 출력할 수 있습니다. (ex. result['termAtt'])
+* argument에 따라 다르게 KoreanAnalyzer를 초기화
+* result는 딕셔너리 타입이므로 원하는 key만 따로 출력 가능 (ex. result['termAtt'])
 
 ## Resources
 
-* mecab-ko-dic-2.1.1-20180720 를 시스템 사전으로 사용하고 있습니다.
-* 사용자 사전은 ~/pynori/resources/userdict_ko.txt 에서 수정할 수 있습니다.
+* mecab-ko-dic-2.1.1-20180720 를 시스템 사전으로 사용
+* 사용자 사전은 ~/pynori/resources/userdict_ko.txt 에서 수정 가능
 
 
 ## Test
@@ -70,8 +70,14 @@ python -m unittest -v tests.test_korean_tokenizer
 * Modify token & dictionary objects
 * Not use circular buffer & wordID
 
-## TODO
+## Improvement 
+원본 루씬 노리 대비 개선점 (주의. general하지 않을 수도 있음)
 
+* 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류
+* Unknown 길이가 무분별하게 길어지는 현상
+
+
+## TODO
 * Synonym Graph Filter
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 
