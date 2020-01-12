@@ -71,7 +71,7 @@ python -m unittest -v tests.test_korean_tokenizer
 * Not use circular buffer & wordID
 
 ## Improvement 
-원본 루씬 노리 대비 개선점 (주의. general하지 않을 수도 있음)
+원본 루씬 노리 대비 개선점 (general하지 않을 수도 있음)
 
 * 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류
 * Unknown 길이가 무분별하게 길어지는 현상
@@ -82,6 +82,20 @@ python -m unittest -v tests.test_korean_tokenizer
 * Synonym Graph Filter
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 * Optimize algorithms and data structures, to be faster
+
+## Comparision Study
+
+|                 | 한나눔 0.8.4      | 꼬꼬마 2.0     | 트위터 1.14.7   | Pynori 0.1.0    |
+| :-------------: | :-------------: |:-------------:|:-------------:|:-------------:|
+| 1 개             | 0.00138 sec     | 0.00244 sec   | 0.00051 sec    | 0.00279 sec   |
+| 10 개            | 0.03467 sec     | 0.07546 sec   | 0.01188 sec    | 0.09655 sec   |
+| 100 개           | 0.28960 sec     | 0.70480 sec   | 0.09319 sec    | 0.72207 sec   |
+| 1000 개          | 2.59061 sec     | 6.38031 sec   | 0.94029 sec    | 6.46660 sec   |
+| 10000 개         | 27.61180 sec     | 77.73616 sec   | 11.43677 sec    | 68.20249 sec   |
+| 100000 개        | 262.72305 sec     | 699.70416 sec   | 95.79926 sec    | 672.83272 sec   |
+
+위는 데이터 개수를 증가하면서 pynori를 포함한 다양한 종류의 한국어 형태소 분석기의 처리 속도를 나타낸 표입니다 (참고 ./tests/test_compare_morphs.ipynb). 비교 대상은 모두 konlpy 라이브리에 모두 속해 있으며 JVM 기반으로 동작합니다. 반면, Pynori는 순수 파이썬 스크립트로 실행되기에 속도 패널티가 있습니다. 그럼에도 트위터를 제외하고는 큰 차이가 발생하지는 않습니다.
+
 
 ## License
 * Apache License 2.0
