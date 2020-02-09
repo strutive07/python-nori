@@ -9,7 +9,7 @@ Lucene Nori, Korean Mopological Analyzer, in Python
 * Pynori includes mecab-ko-dic-2.1.1-20180720 for system dictionary.
 * Pynori is compatible with Python 3.7 and is distributed under the Apache License 2.0.
 
-자바로 작성되어 있는 아파치 루씬의 노리 형태소 분석기를 파이썬으로 변환한 프로젝트입니다. 원본과 같은 테스트를 실시하여 동일한 결과를 얻었습니다(ref.Test). 동의어 확장 필터는 제외하고 다른 기능은 모두 정상적으로 동작합니다. 정확도는 동일하지만 파이썬 언어인 점과 더불어 Trie 자료구조의 사용 등으로 속도는 조금 느립니다(ref.Property). 진행하지 못한 일들은 앞으로 보완할 계획입니다(ref.TODO).
+자바로 작성되어 있는 아파치 루씬의 노리 형태소 분석기를 파이썬으로 변환한 프로젝트입니다. 원본과 같은 테스트를 실시하여 동일한 결과를 얻었습니다(ref.Test). 정확도는 동일하지만 스크립트 언어인 점과 단순한 Trie 자료구조 사용 등으로 속도는 조금 느립니다(ref.Property & Comparision Study). 동의어 확장 필터를 포함한 진행하지 못한 일들은 앞으로 보완할 계획입니다(ref.TODO).
 
 노리 형태소 분석기에 대한 내용은 저의 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
 
@@ -49,9 +49,10 @@ print(result)
 
 ## Resources
 
-* mecab-ko-dic-2.1.1-20180720 를 시스템 사전으로 사용
-* 사용자 사전은 ~/pynori/resources/userdict_ko.txt 에서 수정 가능
-
+* mecab-ko-dic-2.1.1-20180720 를 시스템 사전으로 사용 (다른 버전의 mecab-ko-dic 사용 가능)
+* 사용자 사전은 ~/pynori/resources/userdict_ko.txt 에서 수정
+* 동의어 사전은 ~/pynori/resources/synonyms.txt.txt 에서 수정
+* 사전은 파일 수정만 하면 따로 빌드할 필요없이 곧바로 적용 가능
 
 ## Test
 
@@ -64,24 +65,24 @@ python -m unittest -v tests.test_korean_tokenizer
 
 ## Property
 
+* 최대한 원본 코드와 비슷하게 구현 (변수/파일 이름, 코드 패턴 등)
+* Based on Lucene analyzer, nori
 * Use mecab-ko-dic-2.1.1-20180720
-* Based on lucene analyzer, nori
 * Use Trie data structure, instead of FST
 * Modify token & dictionary objects
 * Not use circular buffer & wordID
 
-## Improvement 
-원본 루씬 노리 대비 개선점 (general하지 않을 수도 있음)
-
-* 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류
-* Unknown 길이가 무분별하게 길어지는 현상
-
 
 ## TODO
+
 * Character Filter
 * Synonym Graph Filter
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
-* Optimize algorithms and data structures, to be faster
+* 속도 향상을 위한 알고리즘 및 자료구조 최적화
+* 원본 루씬 노리 대비 개선점
+   * 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류
+   * Unknown 길이가 무분별하게 길어지는 현상
+
 
 ## Comparision Study
 
@@ -94,13 +95,14 @@ python -m unittest -v tests.test_korean_tokenizer
 | 10000 개         | 27.61180 sec     | 77.73616 sec   | 11.43677 sec    | 68.20249 sec   |
 | 100000 개        | 262.72305 sec     | 699.70416 sec   | 95.79926 sec    | 672.83272 sec   |
 
-위는 데이터 개수를 증가하면서 pynori를 포함한 다양한 종류의 한국어 형태소 분석기의 처리 속도를 나타낸 표입니다 (참고 ./tests/test_compare_morphs.ipynb). 비교 대상은 모두 konlpy 라이브리에 모두 속해 있으며 JVM 기반으로 동작합니다. 반면, Pynori는 순수 파이썬 스크립트로 실행되기에 속도 패널티가 있습니다. 그럼에도 트위터를 제외하고는 큰 차이가 발생하지는 않습니다.
+위는 데이터 개수를 증가하면서 pynori를 포함한 다양한 종류의 한국어 형태소 분석기의 처리 속도를 나타낸 표입니다 (참고 ./tests/test_compare_morphs.ipynb). 비교 대상은 모두 파이썬 라이브러리(konlpy)에 모두 속해 있지만 내부적으로 JVM 기반으로 동작합니다. 반면, Pynori는 순수 파이썬 스크립트로 실행됩니다. 그럼에도 트위터를 제외하고는 큰 차이가 발생하지 않습니다.
 
 
 ## License
 * Apache License 2.0
 
 ## Reference
-* [Lucene-solr Nori](https://github.com/apache/lucene-solr/tree/master/lucene/analysis/nori)
-* [Mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic/src/master/)
-
+* (Github) [Lucene-solr - Nori](https://github.com/apache/lucene-solr/tree/master/lucene/analysis/nori)
+* (Github) [Mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic/src/master/)
+* (Blog) [엘라스틱서치 공식 한국어 분석 플러그인 '노리'](https://www.elastic.co/kr/blog/nori-the-official-elasticsearch-plugin-for-korean-language-analysis)
+* (Blog) [노리(Nori) 형태소 분석기 Deep Dive](https://gritmind.github.io/2019/05/nori-deep-dive.html)
