@@ -71,8 +71,10 @@ python -m unittest -v tests.test_korean_tokenizer
 * Use Trie data structure, instead of FST
 * Modify token & dictionary objects
 * Not use circular buffer & wordID
-
-
+* 원본 루씬 노리 대비 개선점
+   * 토큰 정보 (Unknown/Known/User, POS type) 출력
+   * 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류 해결
+   
 ## TODO
 
 * Character Filter
@@ -80,7 +82,6 @@ python -m unittest -v tests.test_korean_tokenizer
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 * 속도 향상을 위한 알고리즘 및 자료구조 최적화
 * 원본 루씬 노리 대비 개선점
-   * 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류
    * Unknown 길이가 무분별하게 길어지는 현상
 
 
