@@ -6,7 +6,7 @@ Reference: `char.def` file.
 
 import sys
 
-from enum import Enum, unique, auto 
+#from enum import Enum, unique, auto 
 
 #PATH_CUR = sys.path[0]
 #PATH_BACK2 = '/'.join(sys.path[0].split('/')[:-2])
@@ -226,7 +226,7 @@ class CharacterDefinition(object):
 			return True
 		return False
 	
-	def hasCoda(self, ch) -> bool:
+	def hasCoda(self, ch):
 		if ((ord(ch) - 0xAC00) % 0x001C) == 0:
 			return False # 종성 없음 (ex. 키)
 		else:

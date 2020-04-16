@@ -15,6 +15,7 @@ class UserDictionary(Dictionary):
 	RIGHT_ID_F = 3534 # NNG right with hangul and no coda on the last char
 	USER_POS = 'NNG'
 
+	@staticmethod
 	def open(USER_PATH):
 		entries = []
 		with open(USER_PATH, 'r', encoding='UTF8') as rf:

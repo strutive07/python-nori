@@ -5,7 +5,7 @@ Lucene Nori, Korean Mopological Analyzer, in Python
 * Nori in Apache Lucene is a korean morpological analyzer based on Mecab.
 * Pynori is a python-version of nori (Apache Lucene is written in Java).
 * The analysis results are the same (All test cases are passed).
-* Pynori maybe a little slower than nori because of python script language and less optimized data structures.
+* Pynori maybe a little slower than nori in Elasticsearch because of python script language and less optimized data structures.
 * Pynori includes mecab-ko-dic-2.1.1-20180720 for system dictionary.
 * Pynori is compatible with Python 3.7 and is distributed under the Apache License 2.0.
 
@@ -23,19 +23,19 @@ pip install pynori
 ## Usage
 
 ```python
-
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='MIXED',
                       discard_punctuation=True,
-                      output_unknown_unigrams=True,
+                      output_unknown_unigrams=False,
                       pos_filter=False,
                       stop_tags=['JKS', 'JKB', 'VV', 'EF'])
 
 input_text = "아빠가 방에 들어가신다."
 result = nori.do_analysis(input_text)
 print(result)
+```
+```
 >>>
-
 {'termAtt': ['아빠', '가', '방', '에', '들어가', '시', 'ᆫ다'],
  'offsetAtt': [(0, 2), (2, 3), (4, 5), (5, 6), (7, 10), (10, 12), (10, 12)],
  'posLengthAtt': [1, 1, 1, 1, 1, 1, 1],
@@ -44,15 +44,23 @@ print(result)
  'dictTypeAtt': ['KN', 'KN', 'KN', 'KN', 'KN', 'KN', 'KN']}
 ```
 
-* argument에 따라 다르게 KoreanAnalyzer를 초기화
-* result는 딕셔너리 타입이므로 원하는 key만 따로 출력 가능 (ex. result['termAtt'])
+* KoreanAnalyzer argument.
+   * decompound_mode - 복합명사 처리 방식 결정
+      * 'MIXED': 원형과 서브단어 모두 출력
+      * 'DISCARD': 서브단어만 출력
+      * 'NONE': 원형만 출력
+   * discard_punctuation - 구두점 제거 여부
+   * output_unknown_unigrams - 언논 단어를 음절 단위로 쪼갬 여부
+   * pos_filter - POS 필터 실행 여부
+   * stop_tags - 필터링되는 POS 태그 리스트 (pos_filter=True일 때만 활성)
 
 ## Resources
 
-* mecab-ko-dic-2.1.1-20180720 를 시스템 사전으로 사용 (다른 버전의 mecab-ko-dic 사용 가능)
-* 사용자 사전은 ~/pynori/resources/userdict_ko.txt 에서 수정
-* 동의어 사전은 ~/pynori/resources/synonyms.txt.txt 에서 수정
-* 사전은 파일 수정만 하면 따로 빌드할 필요없이 곧바로 적용 가능
+* 시스템 사전은 `~/pynori/resources/mecab-ko-dic-2.1.1-20180720` 에서 수정
+   * 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가 (mecab 규칙에 맞게 단어 추가 & csv 파일로 추가)
+   * csv 파일 변경사항이 있으면, `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 를 삭제해야 함. (초기화시 최신 csv 파일을 기반으로 재생성됨)
+* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정 (수정만 하면 곧바로 적용 o)
+* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정 (수정만 하면 곧바로 적용 o)
 
 ## Test
 
@@ -98,8 +106,16 @@ python -m unittest -v tests.test_korean_tokenizer
 
 위는 데이터 개수를 증가하면서 pynori를 포함한 다양한 종류의 한국어 형태소 분석기의 처리 속도를 나타낸 표입니다 (참고 ./tests/test_compare_morphs.ipynb). 비교 대상은 모두 파이썬 라이브러리(konlpy)에 모두 속해 있지만 내부적으로 JVM 기반으로 동작합니다. 반면, Pynori는 순수 파이썬 스크립트로 실행됩니다. 그럼에도 트위터를 제외하고는 큰 차이가 발생하지 않습니다.
 
+## Release History
+
+|                 | 내용      |
+| :-------------: | :-------------: |
+| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 & & 유닛테스트 구현 완료 (초기 버전) | 
+| pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9 s)     | 
+
 
 ## License
+
 * Apache License 2.0
 
 ## Reference

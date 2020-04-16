@@ -10,11 +10,32 @@ class Dictionary(object): # Abstract Class
 	따라서 dictionary class는 pyNori에서는 Morpheme 만 사용.
 	"""
 
+	def __init__(self):
+		pass
+
+
+
 	class Morpheme(object):
 		"""A morpheme extracted from a compound token."""
+
 		def __init__(self, posTag, surfaceForm):
 			self.posTag = posTag
 			self.surfaceForm = surfaceForm
+
+		#def __getstate__(self):
+		#	return self.__dict__
+		#	#return {'posTag': self.posTag, 'surfaceForm': self.surfaceForm}
+
+		#def __setstate__(self, dct):
+		#	self.__dict__ = dct
+		#	#self.posTag = dct['posTag']
+		#	#self.surfaceForm = dct['surfaceForm']
+
+
+
+
+
+
 
 """
 	def getLeftId(self, wordId: "int") -> int:

@@ -7,6 +7,7 @@ class POS(object):
 	"""
 
 	class Type(object):
+		
 		MORPHEME = 'MORP'			# A simple morpheme
 		COMPOUND = 'COMP'			# Compound noun
 		INFLECT = 'INFL'			# Inflected token

@@ -21,31 +21,12 @@ class TestKoreanAnalyzer(unittest.TestCase):
 
 	def test_stoptags(self):
 
-		self.assertEqual(self.do(
-			analyzer, 'termAtt',
-													"한국은 대단한 나라입니다."),
-													['한국', '대단', '나라', '이'])
-		self.assertEqual(self.do(
-			analyzer, 'offsetAtt', 
-													"한국은 대단한 나라입니다."), 
-													[(0, 2), (4, 6), (8, 10), (10, 13)])
-		self.assertEqual(self.do(
-			analyzer, 'posLengthAtt',
-						 							"한국은 대단한 나라입니다."), 
-													[1, 1, 1, 1])
-		self.assertEqual(self.do(
-			analyzer_stoptags, 'termAtt',
-						 							"한국은 대단한 나라입니다."), 
-						 							['은', '대단', '하', 'ᆫ', '이', 'ᄇ니다'])
-		self.assertEqual(self.do(
-			analyzer_stoptags, 'offsetAtt',
-						 							"한국은 대단한 나라입니다."), 
-						 							[(2, 3), (4, 6), (6, 7), (6, 7), (10, 13), (10, 13)])
-		self.assertEqual(self.do(
-			analyzer_stoptags, 'posLengthAtt',
-						 							"한국은 대단한 나라입니다."), 
-													[1, 1, 1, 1, 1, 1])
-
+		self.assertEqual(self.do(analyzer, 'termAtt', "한국은 대단한 나라입니다."), ['한국', '대단', '나라', '이'])
+		self.assertEqual(self.do(analyzer, 'offsetAtt', "한국은 대단한 나라입니다."), [(0, 2), (4, 6), (8, 10), (10, 13)])
+		self.assertEqual(self.do(analyzer, 'posLengthAtt', "한국은 대단한 나라입니다."), [1, 1, 1, 1])
+		self.assertEqual(self.do(analyzer_stoptags, 'termAtt', "한국은 대단한 나라입니다."), ['은', '대단', '하', 'ᆫ', '이', 'ᄇ니다'])
+		self.assertEqual(self.do(analyzer_stoptags, 'offsetAtt', "한국은 대단한 나라입니다."), [(2, 3), (4, 6), (6, 7), (6, 7), (10, 13), (10, 13)])
+		self.assertEqual(self.do(analyzer_stoptags, 'posLengthAtt', "한국은 대단한 나라입니다."), [1, 1, 1, 1, 1, 1])
 
 	def tearDown(self):
 		pass

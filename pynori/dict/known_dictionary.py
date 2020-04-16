@@ -1,8 +1,10 @@
 import os
+import gzip
+import pickle
 import shlex
 
 from pynori.dict.dictionary import Dictionary
-from pynori.dict.character_definition import CharacterDefinition
+#from pynori.dict.character_definition import CharacterDefinition
 from pynori.dict.trie import Trie
 from pynori.pos import POS
 
@@ -14,29 +16,52 @@ class KnownDictionary(Dictionary):
 	Loaded words will be used as system words
 	"""
 
+	@staticmethod
 	def open(KNOWN_PATH):
-		entries = []
-		for dirName, subdirList, fileList in os.walk(KNOWN_PATH):
-			for fname in fileList:
-				if fname.split('.')[-1] == 'csv':
-					PATH_EACH = dirName + '/' + fname
-					with open(PATH_EACH, 'r', encoding='UTF8') as rf: 
-						for line in rf:
-							line = line.strip()
-							if len(line) == 0:
-								continue
-							entries.append(line)
+		
+		#entries = []
+		#for dirName, subdirList, fileList in os.walk(KNOWN_PATH):
+		#	for fname in fileList:
+		#		if fname.split('.')[-1] == 'csv':
+		#			PATH_EACH = dirName + '/' + fname
+		#			#with open(PATH_EACH, 'r', encoding='UTF8') as rf: 
+		#			#	for line in rf:
+		#			#		line = line.strip()
+		#			#		if len(line) == 0:
+		#			#			continue
+		#			#		entries.append(line)
+		#			entries += open(PATH_EACH, 'r', encoding='UTF8').readlines()
+
+		if os.path.isfile(KNOWN_PATH) == False:
+			import pynori.resources.pkl_mecab_csv.compress
+
+		with gzip.open(KNOWN_PATH, 'rb') as rf:
+			entries = pickle.load(rf) # csv 데이터를 포함한 Trie 자료구조.
+
 		if len(entries) == 0:
 			return None
 		else:
 			return KnownDictionary(entries)
 
 	def __init__(self, entries):
-		charDef = CharacterDefinition()
-		entries = sorted(entries)
+		#charDef = CharacterDefinition()
+		#entries = sorted(entries)
+
 		self.sysTrie = Trie()
 		
+		for token, morph_inf in entries:
+			if morph_inf['morphemes'] is not None:
+				morphemes_list = []
+				for subpos, subword in morph_inf['morphemes']:
+					morphemes_list.append(Dictionary.Morpheme(posTag=subpos, surfaceForm=subword))
+				morph_inf['morphemes'] = morphemes_list
+			self.sysTrie.insert(token, morph_inf)
+
+		"""
+		self.sysTrie = Trie()
 		for entry in entries:
+			entry = entry.strip()
+
 			# Use shlex. 
 			# to deal with the case: ",",1792,3558,788,SC,*,*,*,*,*,*,*
 			shlex_splitter = shlex.shlex(entry, posix=True)
@@ -84,7 +109,8 @@ class KnownDictionary(Dictionary):
 			#morph_inf['analysis'] = splits[11]
 			# 짐수레꾼,1781,3535,2835,NNG,*,T,짐수레꾼,Compound,*,*,짐/NNG/*+수레/NNG/*+꾼/NNG/*
 			self.sysTrie.insert(token, morph_inf)
-			
+		"""
+
 """
 	#@override
 	def getLeftId(self, wordId):

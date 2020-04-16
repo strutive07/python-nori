@@ -10,6 +10,7 @@ class UnknownDictionary(Dictionary):
 	Loaded words will be used as unknown tokens.
 	"""
 
+	@staticmethod
 	def open(UNK_PATH):
 		entries = []
 		with open(UNK_PATH, 'r', encoding='UTF8') as rf:

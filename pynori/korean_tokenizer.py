@@ -1,9 +1,10 @@
 import os
 import sys
 import unicodedata
-from enum import Enum, unique, auto
+from datetime import datetime
 from configparser import ConfigParser
 
+#from enum import Enum, unique, auto 
 from pynori.char_unicode import *
 from pynori.dict.trie import Trie
 from pynori.dict.connection_costs import ConnectionCosts
@@ -62,8 +63,6 @@ class KoreanTokenizer(object):
 	This tokenizer uses a rolling viterbi search to find 
 	the least cost segmentation (path) of the incoming characters.
 
-
-
 	"""
 
 	# For safety
@@ -83,7 +82,10 @@ class KoreanTokenizer(object):
 		self.buffer = KoreanTokenizer.Buffer()
 		self.character_definition = CharacterDefinition()
 		self.user_dict = UserDictionary.open(PATH_CUR+path_userdict)
+		#start_main = datetime.now()
 		self.kn_dict = KnownDictionary.open(PATH_CUR+PATH_KN_DICT)
+		#end_main = datetime.now()
+		#print('\n RUN TIME: {}\n'.format(end_main - start_main))
 		self.unk_dict = UnknownDictionary.open(PATH_CUR+PATH_UNK_DICT)
 		self.conn_costs = ConnectionCosts.open(PATH_CUR+PATH_CONN_COST)
 		self.reset_state()
