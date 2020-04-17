@@ -13,6 +13,9 @@ Lucene Nori, Korean Mopological Analyzer, in Python
 
 노리 형태소 분석기에 대한 내용은 저의 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
 
+혹시, 버그나 알고리즘에 관련된 이슈 사항이 있으면 [issue](https://github.com/gritmind/python-nori/issues) 에 등록해주세요. 
+
+
 ## Install
 
 ```
