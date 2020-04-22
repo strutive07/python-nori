@@ -35,11 +35,11 @@ class Type(object):
 	UNKNOWN = 'UKN' # Unknown words (heuristically segmented).
 	USER = 'US' # Known words from the user dictionary.
 
-#class DecompoundMode(object):
+class DcpdMode(object):
 	"""Decompound mode: this determines how the tokenizer handles"""
-#	NONE = 'NON' # No decomposition for compound.
-#	DISCARD = 'DIS' # Decompose compounds and discards the original form (default).
-#	MIXED = 'MIX' # Decompose compounds and keeps the original form.
+	NONE = 'NONE' # No decomposition for compound.
+	DISCARD = 'DISCARD' # Decompose compounds and discards the original form (default).
+	MIXED = 'MIXED' # Decompose compounds and keeps the original form.
 
 
 class KoreanTokenizer(object):
@@ -50,8 +50,11 @@ class KoreanTokenizer(object):
 	Parameters
 	----------
 	decompound_mode : {'NONE', 'DISCARD', 'MIXED'}
-		this determines how the tokenizer handles compound words, remaining the root(original) word or not.
+		this determines how the tokenizer handles common compound words, remaining the root(original) word or not.
 	
+	infl_decompound_mode : {'NONE', 'DISCARD', 'MIXED'}
+		this determines how the tokenizer handles inflect compound words, remaining the root(original) word or not.
+
 	output_unknown_unigrams : {'True', 'False'}
 		true if outputs unigrams for unknown words.
 
@@ -73,9 +76,11 @@ class KoreanTokenizer(object):
 				 verbose,
 				 path_userdict,
 				 decompound_mode,
+				 infl_decompound_mode,
 				 output_unknown_unigrams,
 				 discard_punctuation):
 		self.mode = decompound_mode
+		self.infl_mode = infl_decompound_mode
 		self.output_unknown_unigrams = output_unknown_unigrams
 		self.discard_punctuation = discard_punctuation
 		self.verbose = verbose
@@ -722,18 +727,26 @@ class KoreanTokenizer(object):
 										offset=fragmentOffset, length=length, startOffset=backWordPos, endOffset=backWordPos+length, 
 										posType=backPosType, morphemes=morphemes, posTag=backPosTag)
 
-				if token.getPOSType() == POS.Type.MORPHEME or self.mode == 'NONE':
-					if self.should_filter_token(token) == False:
-						self.pending.append(token)
-						if self.verbose:
-							print(" (2)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 
-				else: # token.getPOSType() == POS.Type.COMPOUND
+				if token.getPOSType() == POS.Type.MORPHEME or \
+					(token.getPOSType() != POS.Type.INFLECT and self.mode == DcpdMode.NONE) or \
+					(token.getPOSType() == POS.Type.INFLECT and self.infl_mode == DcpdMode.NONE):
+
+							if self.should_filter_token(token) == False:
+								self.pending.append(token)
+								if self.verbose:
+									print(" (2)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
+
+
+				#else: # token.getPOSType() != POS.Type.MORPHEME
+				elif token.getPOSType() != POS.Type.MORPHEME:
+
 					morphemes = token.getMorphemes() # sub words from compound noun
 					if morphemes is None: # 이 경우는 거의 없을 듯. 위에 'COMPOUND'를 알고 들어왔기에...
 						self.pending.append(token)
 						if self.verbose:
 							print(" (3)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
+					
 					else: # sub words from compound noun
 						endOffset = backWordPos + length
 						posLen = 0
@@ -749,24 +762,30 @@ class KoreanTokenizer(object):
 							else:
 								#compoundToken = DecompoundToken(morpheme.posTag, morpheme.surfaceForm, token.getStartOffset(), token.getEndOffset(), backPosType, morphemes)
 								compoundToken = DecompoundToken(posTag=morpheme.posTag, surfaceForm=morpheme.surfaceForm, 
+																#startOffset=endOffset-len(morpheme.surfaceForm), endOffset=endOffset,
+																# INFLECT 은 원형, 서브단어의 offset이 꼬이므로 그냥 하나로 통일. 
 																startOffset=token.getStartOffset(), endOffset=token.getEndOffset(), 
 																posType=POS.Type.MORPHEME, dictType=backDictType)
 							
-							if i == 0 and self.mode == 'MIXED':
+							if i == 0 and \
+								(self.mode == DcpdMode.MIXED or self.infl_mode == DcpdMode.MIXED):
 								compoundToken.setPositionIncrement(0)
 								
+							# Only DISCARD mode
 							posLen += 1
 							endOffset -= len(morpheme.surfaceForm)
 							self.pending.append(compoundToken)
 							if self.verbose:
 								print(" (4)   add token = ", compoundToken.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
-				
-						if self.mode == 'MIXED':
+
+
+						if (token.getPOSType() != POS.Type.INFLECT and self.mode == DcpdMode.MIXED) or \
+							(token.getPOSType() == POS.Type.INFLECT and self.infl_mode == DcpdMode.MIXED):
 							token.setPositionLength(max(1, posLen))
 							self.pending.append(token)
 							if self.verbose:
 								print(" (5)   add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
-				
+			
 			# For Spacing
 			if self.discard_punctuation == False and backWordPos != backPos:
 				# Add a token for whitespaces between terms

@@ -16,6 +16,7 @@ cfg.read(PATH_CUR+'/config.ini')
 ENG_LOWER = cfg.getboolean('PREPROCESSING', 'ENG_LOWER')
 # OPTION
 DECOMPOUND_MODE = cfg['OPTION']['DECOMPOUND_MODE']
+INFL_DECOMPOUND_MODE = cfg['OPTION']['INFL_DECOMPOUND_MODE']
 VERBOSE = cfg.getboolean('OPTION', 'VERBOSE')
 OUTPUT_UNKNOWN_UNIGRAMS = cfg.getboolean('OPTION', 'OUTPUT_UNKNOWN_UNIGRAMS')
 DISCARD_PUNCTUATION = cfg.getboolean('OPTION', 'DISCARD_PUNCTUATION')
@@ -39,12 +40,18 @@ class KoreanAnalyzer(object):
 				 verbose=VERBOSE,
 				 path_userdict=PATH_USER_DICT,
 				 decompound_mode=DECOMPOUND_MODE,
+				 infl_decompound_mode=INFL_DECOMPOUND_MODE,
 				 output_unknown_unigrams=OUTPUT_UNKNOWN_UNIGRAMS,
 				 discard_punctuation=DISCARD_PUNCTUATION,
 				 pos_filter=USE_POS_FILTER,
 				 stop_tags=KoreanPOSStopFilter.DEFAULT_STOP_TAGS,
 				 synonym_filter=USE_SYNONYM_FILTER):
-		self.kor_tokenizer = KoreanTokenizer(verbose, path_userdict, decompound_mode, output_unknown_unigrams, discard_punctuation)
+		self.kor_tokenizer = KoreanTokenizer(verbose, 
+											 path_userdict, 
+											 decompound_mode,
+											 infl_decompound_mode,
+											 output_unknown_unigrams, 
+											 discard_punctuation)
 		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
 		self.syn_graph_filter = SynonymGraphFilter()
 		self.pos_filter = pos_filter

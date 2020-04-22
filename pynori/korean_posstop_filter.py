@@ -30,7 +30,16 @@ class KoreanPOSStopFilter(object):
 		
 	def do_filter(self, tkn_attrs):
 		cur_pos_list = tkn_attrs.posTagAtt
-		bool_applied_stoptag_list = [False if x in self.stop_tags else True for x in cur_pos_list]
+		#bool_applied_stoptag_list = [False if x in self.stop_tags else True for x in cur_pos_list]
+		bool_applied_stoptag_list = [True] * len(cur_pos_list)
+		for i, x in enumerate(cur_pos_list):
+			if '+' in x:
+				splited_x = x.split('+')
+				if splited_x[0] in self.stop_tags or splited_x[1] in self.stop_tags:
+					bool_applied_stoptag_list[i] = False
+			else:
+				if x in self.stop_tags:
+					bool_applied_stoptag_list[i] = False
 
 		for name, value in tkn_attrs.__dict__.items():
 			new_value_list = []

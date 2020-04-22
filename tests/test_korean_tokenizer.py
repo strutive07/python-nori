@@ -13,7 +13,7 @@ import os
 import unittest
 from configparser import ConfigParser
 
-from pynori.korean_tokenizer import KoreanTokenizer
+from pynori.korean_tokenizer import KoreanTokenizer, DcpdMode
 from pynori.pos import POS
 
 cfg = ConfigParser()
@@ -24,12 +24,15 @@ PATH_USER_DICT = cfg['PATH']['USER_DICT']
 
 
 ## Initization
-print('Initialize...')
-tokenizer = KoreanTokenizer(False, PATH_USER_DICT, 'NONE', False, True)
-tokenizer_with_punctuation = KoreanTokenizer(False, PATH_USER_DICT, 'NONE', False, False)
-tokenizer_unigram = KoreanTokenizer(False, PATH_USER_DICT, 'NONE', True, True)
-tokenizer_decompound = KoreanTokenizer(False, PATH_USER_DICT, 'DISCARD', False, True)
-tokenizer_decompound_keep = KoreanTokenizer(False, PATH_USER_DICT, 'MIXED', False, True)
+print('KoreanTokenizer Initializing...')
+
+tokenizer = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.NONE, False, True)
+tokenizer_with_punctuation = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, False, False)
+tokenizer_unigram = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, True, True)
+tokenizer_decompound = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.DISCARD, False, True)
+tokenizer_decompound_keep = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.MIXED, DcpdMode.MIXED, False, True)
+tokenizer_infl_decompound_none = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.NONE, False, True)
+tokenizer_infl_decompound_mixed = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.MIXED, False, True)
 #analyzer_reading => test_korean_analyzer
 
 
@@ -151,6 +154,15 @@ class TestKoreanTokenizer(unittest.TestCase):
 		self.assertEqual(self.do(tokenizer, 'posLengthAtt',	"도로ㆍ지반ㆍ수자원ㆍ건설환경ㆍ건축ㆍ화재설비연구"), [1, 1, 1, 1, 1, 1, 1, 1, 1])
 		self.assertEqual(self.do(tokenizer, 'posTagAtt', "도로ㆍ지반ㆍ수자원ㆍ건설환경ㆍ건축ㆍ화재설비연구"), ['NNG', 'NNG', 'NNG', 'NNG', 'NNG', 'NNG', 'NNG', 'NNG', 'NNG'])
 		
+	def test_infl_mode(self):
+
+		self.assertEqual(self.do(tokenizer_infl_decompound_none, 'termAtt', "가벼운 냉장고"), ['가벼운', '냉장', '고'])
+		self.assertEqual(self.do(tokenizer_infl_decompound_mixed, 'termAtt', "가벼운 냉장고"), ['가벼운', '가볍', 'ᆫ', '냉장', '고'])
+
+
+
+
+
 	def tearDown(self):
 		pass
 		

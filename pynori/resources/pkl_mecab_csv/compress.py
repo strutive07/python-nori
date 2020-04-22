@@ -67,10 +67,12 @@ for entry in total_entries:
     morph_inf['word_cost'] = int(splits[3])
     morph_inf['POS'] = splits[4]
 
-    if splits[8] == '*':
+    if splits[8] == '*': # 단일어
         morph_inf['POS_type'] = POS.Type.MORPHEME
         morph_inf['morphemes'] = None
-    else:
+
+    else: # 복합어
+
         mecab_pos_type_naming = splits[8].upper()
         if mecab_pos_type_naming == 'COMPOUND':
             morph_inf['POS_type'] = POS.Type.COMPOUND

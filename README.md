@@ -13,7 +13,7 @@ Lucene Nori, Korean Mopological Analyzer, in Python
 
 노리 형태소 분석기에 대한 내용은 저의 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
 
-혹시, 버그나 알고리즘에 관련된 이슈 사항이 있으면 [issue](https://github.com/gritmind/python-nori/issues) 에 등록해주세요. 
+알고리즘에 대한 이슈 사항이 있으면 [issue](https://github.com/gritmind/python-nori/issues) 에 등록해주세요. 
 
 
 ## Install
@@ -28,10 +28,10 @@ pip install pynori
 ```python
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='MIXED',
+                      infl_decompound_mode='DISCARD',
                       discard_punctuation=True,
                       output_unknown_unigrams=False,
-                      pos_filter=False,
-                      stop_tags=['JKS', 'JKB', 'VV', 'EF'])
+                      pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'])
 
 input_text = "아빠가 방에 들어가신다."
 result = nori.do_analysis(input_text)
@@ -48,7 +48,7 @@ print(result)
 ```
 
 * KoreanAnalyzer argument.
-   * decompound_mode - 복합명사 처리 방식 결정
+   * decompound_mode / infl_decompound_mode - 복합명사 / 굴절어 처리 방식 결정
       * 'MIXED': 원형과 서브단어 모두 출력
       * 'DISCARD': 서브단어만 출력
       * 'NONE': 원형만 출력
