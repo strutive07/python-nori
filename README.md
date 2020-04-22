@@ -111,10 +111,11 @@ python -m unittest -v tests.test_korean_tokenizer
 
 ## Release History
 
-|                 | 내용      |
-| :-------------: | :-------------: |
-| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 & & 유닛테스트 구현 완료 (초기 버전) | 
-| pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9 s)     | 
+|                 | 내용             | 날짜     |
+| :-------------: | :-------------: | :-----: |
+| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 & & 유닛테스트 구현 완료 (초기 버전) | Nov 17, 2019 |
+| pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9 s)     | Apr 16, 2020 |
+| pynori 0.1.2    | KoreanTokenizer infl-decomp 모드 추가     | Apr 16, 2020 |
 
 
 ## License
