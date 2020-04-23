@@ -279,6 +279,7 @@ class KoreanTokenizer(object):
 				index += len(self.positions)
 			return index
 		
+		# TODO: circular buffer 사용법 확인.
 		#def freeBefore(self, pos):
 		#	toFree = self.count - (self.nextPos - pos)
 		#	assert toFree >= 0
@@ -722,12 +723,14 @@ class KoreanTokenizer(object):
 			else:
 				#print(backWordPos, backWordPos+length)
 				#print(self.buffer.slice_get(backWordPos, backWordPos+length))
-
 				token = DictionaryToken(dictType=backDictType, dictionary=None, wordId=None, surfaceForm=fragment, 
 										offset=fragmentOffset, length=length, startOffset=backWordPos, endOffset=backWordPos+length, 
 										posType=backPosType, morphemes=morphemes, posTag=backPosTag)
 
 
+				#if token.getPOSType() == POS.Type.MORPHEME or self.mode == DcpdMode.NONE
+				# POS.Type.MORPHEME 타입이라면? pass.
+				# DcpdMode.NONE 모드라면? pass.
 				if token.getPOSType() == POS.Type.MORPHEME or \
 					(token.getPOSType() != POS.Type.INFLECT and self.mode == DcpdMode.NONE) or \
 					(token.getPOSType() == POS.Type.INFLECT and self.infl_mode == DcpdMode.NONE):
@@ -737,22 +740,28 @@ class KoreanTokenizer(object):
 								if self.verbose:
 									print(" (2)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 
-
-				#else: # token.getPOSType() != POS.Type.MORPHEME
-				elif token.getPOSType() != POS.Type.MORPHEME:
+				#else:
+				# POS.Type.MORPHEME 타입이라면? reject.
+				# DcpdMode.NONE 모드라면? reject.
+				# (주의. pass 와 pass 는 or로 결합. but, reject 과 reject의 결합은 and로 결합)
+				if token.getPOSType() != POS.Type.MORPHEME and \
+					(token.getPOSType() != POS.Type.INFLECT and self.mode != DcpdMode.NONE) or \
+					(token.getPOSType() == POS.Type.INFLECT and self.infl_mode != DcpdMode.NONE):
 
 					morphemes = token.getMorphemes() # sub words from compound noun
-					if morphemes is None: # 이 경우는 거의 없을 듯. 위에 'COMPOUND'를 알고 들어왔기에...
+					if morphemes is None: # 이 경우는 거의 없음. 위에 'COMPOUND'를 알고 들어왔기에. 일종의 예외처리임.
 						self.pending.append(token)
 						if self.verbose:
 							print(" (3)    add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 					
+					# 복합명사의 서브단어가 있는 경우.
 					else: # sub words from compound noun
 						endOffset = backWordPos + length
 						posLen = 0
 						# decompose the compound
 						for i in range(len(morphemes)-1, -1, -1):
 							morpheme = morphemes[i]
+
 							if token.getPOSType() == POS.Type.COMPOUND:
 								assert endOffset - len(morpheme.surfaceForm) >= 0
 								#compoundToken = DecompoundToken(morpheme.posTag, morpheme.surfaceForm, endOffset - len(morpheme.surfaceForm), endOffset, backPosType, morphemes)
@@ -771,18 +780,18 @@ class KoreanTokenizer(object):
 								(self.mode == DcpdMode.MIXED or self.infl_mode == DcpdMode.MIXED):
 								compoundToken.setPositionIncrement(0)
 								
-							# Only DISCARD mode
+							# 서브단어 pending! (MIXED 와 DISCARD 모드만 실행)
 							posLen += 1
 							endOffset -= len(morpheme.surfaceForm)
 							self.pending.append(compoundToken)
 							if self.verbose:
 								print(" (4)   add token = ", compoundToken.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 
-
+						# 원형어 pending! (MIXED 모드만 실행)
 						if (token.getPOSType() != POS.Type.INFLECT and self.mode == DcpdMode.MIXED) or \
 							(token.getPOSType() == POS.Type.INFLECT and self.infl_mode == DcpdMode.MIXED):
 							token.setPositionLength(max(1, posLen))
-							self.pending.append(token)
+							self.pending.append(token) # 원형은 가장 마지막에 pending되어야 함. (bactrace 하기에)
 							if self.verbose:
 								print(" (5)   add token = ", token.getSurfaceFormString()) # + self.pending[len(self.pending)-1])
 			
@@ -806,6 +815,7 @@ class KoreanTokenizer(object):
 		#if self.verbose:
 		#	print("  freeBefore pos=" + str(endPos))
 		
+		# TODO: circular buffer 효용성 확인 필요.
 		# Notify the circular buffers that we are done with these positions:
 		# pynori는 circular buffer를 사용하지 않기에 아래의 과정은 필요 없다. 		
 		#self.buffer.freeBefore(endPos);
@@ -821,13 +831,16 @@ class KoreanTokenizer(object):
 
 	def should_filter_token(self, token):
 		"""Delete token, where the characters are all punctuation."""
+		# 특수문자 토큰들을 제거하기 위한 함수 (ex. '.', '-', '#', '*', '---', '****' ...)
+		# 나아가, 특수문자가 포함된 토큰들도 제거함. (ex. '안녕#', '!노리', '형#태소')
+		# 이에, 사용자 사전에 특수문자가 포함된 토큰들을 사용을 지양함. 있다면, 이 함수에 의해 삭제됨.
+		# TODO: 특수문자가 포함된 토큰들을 삭제할 필요가 없지 않을까? 정책 방향 설정 필요.
 		is_punct = True
-		for ch in token.getSurfaceForm():
-			if self.is_punctuation(ch) == False:
+		for ch in token.getSurfaceForm(): # 토큰 전체를 대상으로 탐색.
+			if self.is_punctuation(ch) == False: # 하나라도 punctuation이 있으면 삭제.
 				is_punct = False
 				return self.discard_punctuation and is_punct
 		return self.discard_punctuation and is_punct
-		#return self.discard_punctuation and is_punct
 		#return self.is_punctuation(token.getSurfaceForm()[token.getOffset()])
 
 	def is_punctuation(self, ch):

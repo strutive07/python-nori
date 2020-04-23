@@ -12,8 +12,6 @@ cfg = ConfigParser()
 PATH_CUR = os.path.dirname(__file__)
 cfg.read(PATH_CUR+'/config.ini')
 
-# PREPROCESSING
-ENG_LOWER = cfg.getboolean('PREPROCESSING', 'ENG_LOWER')
 # OPTION
 DECOMPOUND_MODE = cfg['OPTION']['DECOMPOUND_MODE']
 INFL_DECOMPOUND_MODE = cfg['OPTION']['INFL_DECOMPOUND_MODE']
@@ -46,6 +44,7 @@ class KoreanAnalyzer(object):
 				 pos_filter=USE_POS_FILTER,
 				 stop_tags=KoreanPOSStopFilter.DEFAULT_STOP_TAGS,
 				 synonym_filter=USE_SYNONYM_FILTER):
+		self.preprocessor = Preprocessing()
 		self.kor_tokenizer = KoreanTokenizer(verbose, 
 											 path_userdict, 
 											 decompound_mode,
@@ -61,10 +60,7 @@ class KoreanAnalyzer(object):
 		"""Analyze text input string and return tokens"""
 
 		# Pre-processing
-		if ENG_LOWER:
-			in_string = Preprocessing.lower(in_string)
-		#in_string = Preprocessing.typo(in_string)
-		#in_string = Preprocessing.spacing(in_string)
+		in_string = self.preprocessor.pipeline(in_string)
 
 		# Tokenizing
 		self.kor_tokenizer.set_input(in_string)

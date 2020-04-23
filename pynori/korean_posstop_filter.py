@@ -33,7 +33,7 @@ class KoreanPOSStopFilter(object):
 		#bool_applied_stoptag_list = [False if x in self.stop_tags else True for x in cur_pos_list]
 		bool_applied_stoptag_list = [True] * len(cur_pos_list)
 		for i, x in enumerate(cur_pos_list):
-			if '+' in x:
+			if '+' in x: # INFLECT 원형 때문에 추가. (VC+EMF) 에서 둘 중 하나라도 걸리면 삭제.
 				splited_x = x.split('+')
 				if splited_x[0] in self.stop_tags or splited_x[1] in self.stop_tags:
 					bool_applied_stoptag_list[i] = False
@@ -48,4 +48,8 @@ class KoreanPOSStopFilter(object):
 				if bool_applied_stoptag_list[i] == True:
 					new_value_list.append(cur_value_list[i])
 			setattr(tkn_attrs, name, new_value_list)
+
+		# TODO: POS 필터링 후 포지션 재정렬 필요.
+
 		return tkn_attrs
+
