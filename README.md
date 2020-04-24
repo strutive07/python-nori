@@ -2,16 +2,16 @@
 
 Lucene Nori, Korean Mopological Analyzer, in Python
 
-* Nori는 아파치 루씬 프로젝트에 포함된 한국어 형태소 분석기 플러그인
-* Nori는 mecab 기반의 형태소 분석기 (시스템 사전으로 mecab-ko-dic-2.1.1-20180720 사용)
-* Pynori는 Nori의 파이썬 버전 (기존 Nori는 자바로 작성)
-* Pynori는 원본과 같은 테스트를 실시하여 동일한 결과를 얻음 (ref.Test)
-* Pynori는 순수 script 기반인 점, 최적화되지 않은 자료구조 사용 등으로 Nori 보다 처리속도는 느림 (ref.Property & Comparision Study)
-* 동의어 확장 필터를 포함한 진행하지 못한 일들은 앞으로 보완할 계획 (ref.TODO)
+* Nori는 아파치 루씬 프로젝트에 포함된 한국어 형태소 분석기 플러그인임.
+* Nori는 mecab 기반의 형태소 분석기임. (시스템 사전으로 mecab-ko-dic-2.1.1-20180720 사용)
+* Pynori는 Nori의 파이썬 버전임. (기존 Nori는 자바로 작성됨)
+* Pynori는 원본과 같은 테스트를 실시하여 동일한 결과를 얻음. (ref.Test)
+* Pynori는 순수 script 언어 기반으로 Nori 보다 느림. (ref.Property & Comparision Study)
+* 동의어 확장 필터를 포함한 진행하지 못한 일들은 앞으로 보완할 계획임. (ref.TODO)
 
-노리 형태소 분석기에 대한 내용은 저의 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
+노리 형태소 분석기에 대한 내용은 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
 
-알고리즘에 대한 이슈 사항은 [issue](https://github.com/gritmind/python-nori/issues) 에 등록해주세요. 
+pynori에 대한 이슈 사항은 [issue](https://github.com/gritmind/python-nori/issues)에 등록해주세요. 
 
 
 ## Install
@@ -45,23 +45,24 @@ print(result)
  'dictTypeAtt': ['KN', 'KN', 'KN', 'KN', 'KN', 'KN', 'KN']}
 ```
 
-* KoreanAnalyzer arg.
-   * decompound_mode / infl_decompound_mode - 복합명사 / 굴절어 처리 방식 결정
+* `KoreanAnalyzer` arg.
+   * `decompound_mode` / `infl_decompound_mode` - 복합명사 / 굴절어 처리 방식 결정
       * 'MIXED': 원형과 서브단어 모두 출력
       * 'DISCARD': 서브단어만 출력
       * 'NONE': 원형만 출력
-   * discard_punctuation - 구두점 제거 여부
-   * output_unknown_unigrams - 언논 단어를 음절 단위로 쪼갬 여부
-   * pos_filter - POS 필터 실행 여부
-   * stop_tags - 필터링되는 POS 태그 리스트 (pos_filter=True일 때만 활성)
+   * `discard_punctuation` - 구두점 제거 여부
+   * `output_unknown_unigrams` - 언논 단어를 음절 단위로 쪼갬 여부
+   * `pos_filter` - POS 필터 실행 여부
+   * `stop_tags` - 필터링되는 POS 태그 리스트 (pos_filter=True일 때만 활성)
 
 ## Resources
 
 * 시스템 사전은 `~/pynori/resources/mecab-ko-dic-2.1.1-20180720` 에서 수정
-   * 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가 (mecab 규칙에 맞게 단어 추가 & csv 파일로 추가)
-   * csv 파일 변경사항이 있으면, `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 를 삭제해야 함. (초기화시 최신 csv 파일을 기반으로 재생성됨)
-* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정 (파일 수정만 하면 자동 적용 o)
-* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정 (파일 수정만 하면 자동 적용 o)
+   * (mecab 규칙 준수 필요) 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가
+   * 사전 변경사항은 `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 를 삭제하면 적용 o
+   * (`mecab_csv.pkl` 파일이 없으면 KoreanAnalyzer 초기화 시에 최신 csv 파일을 기반으로 재생성됨)
+* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정만 하면 자동 적용 o
+* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정만 하면 자동 적용 o
 
 ## Test
 
@@ -75,15 +76,16 @@ python -m unittest -v tests.test_korean_tokenizer
 
 ## Property
 
-* 원본 - 루씬(lucene), 노리(nori) 형태소 분석기 (ref.1)
+* [원본] - 루씬(lucene), 노리(nori) 형태소 분석기 (ref.1)
 * 원본 코드와 최대한 비슷하게 구현 (변수/파일명, 코드 패턴 등)
-* `mecab-ko-dic-2.1.1-20180720` 사용
-* Trie 자료구조, (instead of FST)
+* 언어 리소스로 `mecab-ko-dic-2.1.1-20180720` 사용
+* 사전 룩업을 위해 Trie 자료구조 사용 (instead of FST)
 * token & dictionary objects 수정
 * circular buffer & wordID 삭제
 * 원본 루씬 노리 대비 개선 리스트
+   * 사용자 단어 최장일치 로직 구현
    * 토큰 정보 (Unknown/Known/User, POS type) 출력
-   * 특수문자로 시작되는 사용자 단어가 있을 시 동의어 처리가 되지 않는 오류 해결
+   * 특수문자로 시작/포함하는 사용자 단어가 있을 시 동의어 파싱 오류 해결
    * infl_decompound_mode 모드 추가
 
 
@@ -107,11 +109,13 @@ python -m unittest -v tests.test_korean_tokenizer
 | 10000 개         | 27.61180 sec     | 77.73616 sec   | 11.43677 sec    | 68.20249 sec   |
 | 100000 개        | 262.72305 sec     | 699.70416 sec   | 95.79926 sec    | 672.83272 sec   |
 
-위는 데이터 개수를 증가하면서 pynori를 포함한 다양한 종류의 한국어 형태소 분석기의 처리 속도를 나타낸 표입니다 (참고 ./tests/test_compare_morphs.py). 비교 대상은 모두 파이썬 라이브러리(konlpy)에 모두 속해 있지만 내부적으로 JVM 기반으로 동작합니다. 반면, Pynori는 순수 파이썬 스크립트로 실행됩니다. 그럼에도 트위터를 제외하고는 큰 차이가 발생하지 않습니다.
+* 데이터를 증가시키면서 다양한 종류의 한국어 형태소 분석기와 처리 속도를 비교. (참고 `./tests/test_compare_morphs.py`). 
+* 비교 대상은 모두 파이썬 라이브러리(konlpy)에 모두 속해 있지만 내부적으로 JVM 기반으로 동작함. 
+* pynori는 순수 파이썬 스크립트로 실행되지만, 트위터를 제외하고는 큰 차이가 발생하지 않고, 꼬꼬마 2.0보다는 빠름.
 
 ## Release History
 
-| 버전             | 내용             | 날짜     |
+| 버전             | 주요 내용             | 날짜     |
 | :-------------: | :-------------: | :-----: |
 | pynori 0.1.0    | 기본적인 노리 파이썬 패키지 & & 유닛테스트 구현 완료 (초기 버전) | Nov 17, 2019 |
 | pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9s)     | Apr 16, 2020 |

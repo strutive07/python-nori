@@ -53,8 +53,8 @@ class KoreanAnalyzer(object):
 											 discard_punctuation)
 		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
 		self.syn_graph_filter = SynonymGraphFilter()
-		self.pos_filter = pos_filter
-		self.synonym_filter = synonym_filter
+		self.pos_filter_yn = pos_filter
+		self.synonym_filter_yn = synonym_filter
 
 	def do_analysis(self, in_string):
 		"""Analyze text input string and return tokens"""
@@ -69,11 +69,11 @@ class KoreanAnalyzer(object):
 		tkn_attr_obj = self.kor_tokenizer.tkn_attr_obj
 
 		# POS Filtering
-		if self.pos_filter:
+		if self.pos_filter_yn:
 			tkn_attr_obj = self.kor_pos_filter.do_filter(tkn_attr_obj)
 
 		# Synonym Filtering
-		if self.synonym_filter:
+		if self.synonym_filter_yn:
 			tkn_attr_obj = self.syn_graph_filter.do_filter(tkn_attr_obj)
 
 		# Post-processing

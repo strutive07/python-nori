@@ -809,7 +809,7 @@ class KoreanTokenizer(object):
 
 			pos = backPos
 			bestIDX = nextBestIDX
-				
+			
 		self.last_backtrace_pos = endPos		
 		
 		#if self.verbose:
@@ -830,11 +830,15 @@ class KoreanTokenizer(object):
 			return self.unk_dict
 
 	def should_filter_token(self, token):
-		"""Delete token, where the characters are all punctuation."""
-		# 특수문자 토큰들을 제거하기 위한 함수 (ex. '.', '-', '#', '*', '---', '****' ...)
-		# 나아가, 특수문자가 포함된 토큰들도 제거함. (ex. '안녕#', '!노리', '형#태소')
-		# 이에, 사용자 사전에 특수문자가 포함된 토큰들을 사용을 지양함. 있다면, 이 함수에 의해 삭제됨.
-		# TODO: 특수문자가 포함된 토큰들을 삭제할 필요가 없지 않을까? 정책 방향 설정 필요.
+		"""Delete token, where the characters are 'all' punctuation.
+
+		특수문자 토큰들을 제거하기 위한 함수 (ex. '.', '-', '#', '*', '---', '****' ...)
+		사용자 사전 특징으로 특수문자가 포함된 토큰들이 사용자 단어로 지정될 수 있음 (ex. '안녕#', '!노리', '형#태소')
+		self.user_dict.userTrie.search() 함수를 사용해서 체크한 뒤, filter 여부 결정이 필요.
+
+		사용자 사전에 특수문자가 포함된 토큰들이 없다면, 위 userTrie.search() 함수 사용은 속도 저하를 일으킴.
+		단순하게, 아래와 같이 '하나라도 punctuation'이 있으면 삭제하는 방법 선택.
+		"""
 		is_punct = True
 		for ch in token.getSurfaceForm(): # 토큰 전체를 대상으로 탐색.
 			if self.is_punctuation(ch) == False: # 하나라도 punctuation이 있으면 삭제.
