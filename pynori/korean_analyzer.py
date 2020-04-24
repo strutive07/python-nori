@@ -53,8 +53,8 @@ class KoreanAnalyzer(object):
 											 discard_punctuation)
 		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
 		self.syn_graph_filter = SynonymGraphFilter()
-		self.pos_filter_yn = pos_filter
-		self.synonym_filter_yn = synonym_filter
+		self.pos_filter = pos_filter
+		self.synonym_filter = synonym_filter
 
 	def do_analysis(self, in_string):
 		"""Analyze text input string and return tokens"""
@@ -69,14 +69,38 @@ class KoreanAnalyzer(object):
 		tkn_attr_obj = self.kor_tokenizer.tkn_attr_obj
 
 		# POS Filtering
-		if self.pos_filter_yn:
+		if self.pos_filter:
 			tkn_attr_obj = self.kor_pos_filter.do_filter(tkn_attr_obj)
 
 		# Synonym Filtering
-		if self.synonym_filter_yn:
+		if self.synonym_filter:
 			tkn_attr_obj = self.syn_graph_filter.do_filter(tkn_attr_obj)
 
 		# Post-processing
 		# ...
 
 		return tkn_attr_obj.__dict__
+
+	def set_option_tokenizer(self,
+							 decompound_mode=None, 
+							 infl_decompound_mode=None, 
+							 output_unknown_unigrams=None, 
+							 discard_punctuation=None,
+							 pos_filter=None,
+							 stop_tags=None,
+							 synonym_filter=None):
+		if decompound_mode is not None: self.kor_tokenizer.mode = decompound_mode
+		if infl_decompound_mode is not None: self.kor_tokenizer.infl_mode = infl_decompound_mode
+		if output_unknown_unigrams is not None: self.kor_tokenizer.output_unknown_unigrams = output_unknown_unigrams
+		if discard_punctuation is not None: self.kor_tokenizer.discard_punctuation = discard_punctuation
+		pass
+
+	def set_option_filter(self,
+						  pos_filter=None,
+						  stop_tags=None,
+						  synonym_filter=None):
+		if pos_filter is not None: self.pos_filter = pos_filter
+		if stop_tags is not None: self.kor_pos_filter.stop_tags = stop_tags
+		if synonym_filter is not None: self.synonym_filter = synonym_filter
+		pass
+

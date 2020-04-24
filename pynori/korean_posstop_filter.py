@@ -27,7 +27,7 @@ class KoreanPOSStopFilter(object):
 
 	def __init__(self, stop_tags=DEFAULT_STOP_TAGS):
 		self.stop_tags=stop_tags
-		
+
 	def do_filter(self, tkn_attrs):
 		cur_pos_list = tkn_attrs.posTagAtt
 		#bool_applied_stoptag_list = [False if x in self.stop_tags else True for x in cur_pos_list]

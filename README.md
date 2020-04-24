@@ -31,12 +31,9 @@ nori = KoreanAnalyzer(decompound_mode='MIXED',
                       output_unknown_unigrams=False,
                       pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'])
 
-input_text = "아빠가 방에 들어가신다."
-result = nori.do_analysis(input_text)
-print(result)
+print(nori.do_analysis("아빠가 방에 들어가신다."))
 ```
 ```
->>>
 {'termAtt': ['아빠', '가', '방', '에', '들어가', '시', 'ᆫ다'],
  'offsetAtt': [(0, 2), (2, 3), (4, 5), (5, 6), (7, 10), (10, 12), (10, 12)],
  'posLengthAtt': [1, 1, 1, 1, 1, 1, 1],
@@ -54,6 +51,24 @@ print(result)
    * `output_unknown_unigrams` - 언논 단어를 음절 단위로 쪼갬 여부
    * `pos_filter` - POS 필터 실행 여부
    * `stop_tags` - 필터링되는 POS 태그 리스트 (pos_filter=True일 때만 활성)
+
+다음과 같이 KoreanAnalyzer의 옵션을 동적으로 제어할 수 있습니다.
+
+```python
+print(nori.do_analysis("가벼운 냉장고")['termAtt'])
+
+nori.set_option_tokenizer(decompound_mode='DISCARD', infl_decompound_mode='MIXED')
+print(nori.do_analysis("가벼운 냉장고")['termAtt'])
+
+nori.set_option_filter(pos_filter=True, stop_tags=['ETM', 'VA'])
+print(nori.do_analysis("가벼운 냉장고")['termAtt'])
+```
+```
+['가볍', 'ᆫ', '냉장고', '냉장', '고']
+['가벼운', '가볍', 'ᆫ', '냉장', '고']
+['냉장', '고']
+```
+
 
 ## Resources
 
@@ -83,10 +98,10 @@ python -m unittest -v tests.test_korean_tokenizer
 * token & dictionary objects 수정
 * circular buffer & wordID 삭제
 * 원본 루씬 노리 대비 개선 리스트
-   * 사용자 단어 최장일치 로직 구현
    * 토큰 정보 (Unknown/Known/User, POS type) 출력
    * 특수문자로 시작/포함하는 사용자 단어가 있을 시 동의어 파싱 오류 해결
    * infl_decompound_mode 모드 추가
+   * KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
 
 
 ## TODO
