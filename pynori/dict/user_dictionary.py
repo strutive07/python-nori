@@ -31,7 +31,9 @@ class UserDictionary(Dictionary):
 
 	def __init__(self, entries):
 		charDef = CharacterDefinition()
-		entries = sorted(entries)
+		# 복합명사 우선 순위 & 중복 단어 제거를 위해 정렬
+		#entries = sorted(entries)
+		entries = sorted(entries, reverse=True)
 		self.userTrie = Trie()
 		lastToken = ""
 		segmentations = []
@@ -91,6 +93,8 @@ class UserDictionary(Dictionary):
 					morphemes_list.append(Dictionary.Morpheme(posTag=self.USER_POS, surfaceForm=subword))
 				morph_inf['morphemes'] = morphemes_list
 				self.userTrie.insert(token, morph_inf)
+				
+			lastToken = token
 			#ord += 1
 			
 		#self.userTrie = userTrie
