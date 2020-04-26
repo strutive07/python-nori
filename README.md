@@ -141,6 +141,7 @@ _원본 Nori 대비 개선 기능_
 | pynori 0.1.2    | infl_decompound_mode 모드 추가                        | Apr 23, 2020 |
 | pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가           | Apr 25, 2020 |
 
+최신 Release 버전은 0.1.4 입니다.
 
 ## License
 
