@@ -1,12 +1,16 @@
 # Pynori
 
+Pynori is python version of Nori, Korean Analyzer in Apache Lucene and Elasticsearch.
+
 * Nori
-   * 아파치 루씬 프로젝트에 포함된 한국어 형태소 분석기 플러그인 (자바로 작성)
-   * mecab / kuromoji 기반의 형태소 분석기 (mecab-ko-dic-2.1.1-20180720)
+   * 아파치 루씬 및 엘라스틱서치에 포함된 한국어 형태소 분석기 플러그인 (자바로 작성)
+   * mecab / kuromoji 기반의 한국어 형태소 분석기 (mecab-ko-dic-2.1.1-20180720 사용)
+   * 루씬 또는 엘라스틱서치 엔진에 종속된 한국어 형태소 분석기
 * Pynori
    * Nori의 파이썬 버전 & 순수 파이썬 스크립트로 작성 (ref.Property & Comparision Study)
-   * 원본과 같은 테스트를 실시하여 동일한 결과를 얻음. (ref.Test)
-   * 파이썬 프로젝트 활용 가능 & 원본 Nori 대비 개선점 제시 (ref.Property)
+   * 원본과 같은 유닛테스트를 실시하여 동일한 결과를 얻음. (ref.Test)
+   * 독립된 모듈로 파이썬 프로젝트 활용 가능
+   * 원본 Nori 대비 개선 기능 (ref.Property)
 
 노리 형태소 분석기에 대한 내용은 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
 
@@ -18,7 +22,6 @@ pynori에 대한 이슈 사항은 [issue](https://github.com/gritmind/python-nor
 ```
 pip install pynori
 ```
-
 
 ## Usage
 
@@ -96,11 +99,13 @@ python -m unittest -v tests.test_korean_tokenizer
 * 사전 룩업을 위해 Trie 자료구조 사용 (instead of FST)
 * token & dictionary objects 수정
 * circular buffer & wordID 삭제
-* 원본 루씬 노리 대비 개선 리스트
-   * 토큰 정보 (Unknown/Known/User, POS type) 출력
-   * 특수문자로 시작/포함하는 사용자 단어가 있을 시 동의어 파싱 오류 해결
-   * infl_decompound_mode 모드 추가
-   * KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
+
+_원본 Nori 대비 개선 기능_
+
+* 토큰 정보 (Unknown/Known/User, POS type) 출력
+* 특수문자로 시작/포함하는 사용자 단어가 있을 시 동의어 파싱 오류 해결
+* infl_decompound_mode 모드 추가
+* KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
 
 
 ## TODO
@@ -131,10 +136,11 @@ python -m unittest -v tests.test_korean_tokenizer
 
 | 버전             | 주요 내용             | 날짜     |
 | :-------------: | :-------------: | :-----: |
-| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 & & 유닛테스트 구현 완료 (초기 버전) | Nov 17, 2019 |
+| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 포팅 & & 유닛테스트 구현 완료 | Nov 17, 2019 |
 | pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9s)     | Apr 16, 2020 |
 | pynori 0.1.2    | infl_decompound_mode 모드 추가                        | Apr 23, 2020 |
 | pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가           | Apr 25, 2020 |
+
 
 ## License
 

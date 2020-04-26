@@ -1,1 +1,5 @@
-test
+파이썬;파이쏜;python
+노리;nori;노리 분석기
+인공지능;ai;aritificial intelligence
+자연어처리;nlp;natural language processing
+개발자;developer

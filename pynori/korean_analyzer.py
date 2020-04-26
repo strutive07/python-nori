@@ -21,8 +21,10 @@ DISCARD_PUNCTUATION = cfg.getboolean('OPTION', 'DISCARD_PUNCTUATION')
 # FILTER
 USE_SYNONYM_FILTER = cfg.getboolean('FILTER', 'USE_SYNONYM_FILTER')
 USE_POS_FILTER = cfg.getboolean('FILTER', 'USE_POS_FILTER')
+MODE_SYNONYM_FILTER = cfg['FILTER']['MODE_SYNONYM_FILTER']
 # PATH
 PATH_USER_DICT = cfg['PATH']['USER_DICT']
+
 
 
 class KoreanAnalyzer(object):
@@ -43,7 +45,8 @@ class KoreanAnalyzer(object):
 				 discard_punctuation=DISCARD_PUNCTUATION,
 				 pos_filter=USE_POS_FILTER,
 				 stop_tags=KoreanPOSStopFilter.DEFAULT_STOP_TAGS,
-				 synonym_filter=USE_SYNONYM_FILTER):
+				 synonym_filter=USE_SYNONYM_FILTER, 
+				 synonym_mode=MODE_SYNONYM_FILTER):
 		self.preprocessor = Preprocessing()
 		self.kor_tokenizer = KoreanTokenizer(verbose, 
 											 path_userdict, 
@@ -51,10 +54,12 @@ class KoreanAnalyzer(object):
 											 infl_decompound_mode,
 											 output_unknown_unigrams, 
 											 discard_punctuation)
-		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
-		self.syn_graph_filter = SynonymGraphFilter()
 		self.pos_filter = pos_filter
+		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
 		self.synonym_filter = synonym_filter
+		self.syn_graph_filter = None
+		if synonym_filter: # SynonymGraphFilter 초기화 처리 지연 시간으로 True일 때만 활성.
+			self.syn_graph_filter = SynonymGraphFilter(self.kor_tokenizer, synonym_mode)
 
 	def do_analysis(self, in_string):
 		"""Analyze text input string and return tokens"""
@@ -85,10 +90,7 @@ class KoreanAnalyzer(object):
 							 decompound_mode=None, 
 							 infl_decompound_mode=None, 
 							 output_unknown_unigrams=None, 
-							 discard_punctuation=None,
-							 pos_filter=None,
-							 stop_tags=None,
-							 synonym_filter=None):
+							 discard_punctuation=None):
 		if decompound_mode is not None: self.kor_tokenizer.mode = decompound_mode
 		if infl_decompound_mode is not None: self.kor_tokenizer.infl_mode = infl_decompound_mode
 		if output_unknown_unigrams is not None: self.kor_tokenizer.output_unknown_unigrams = output_unknown_unigrams
@@ -98,9 +100,13 @@ class KoreanAnalyzer(object):
 	def set_option_filter(self,
 						  pos_filter=None,
 						  stop_tags=None,
-						  synonym_filter=None):
+						  synonym_filter=None,
+						  synonym_mode=None):
 		if pos_filter is not None: self.pos_filter = pos_filter
 		if stop_tags is not None: self.kor_pos_filter.stop_tags = stop_tags
-		if synonym_filter is not None: self.synonym_filter = synonym_filter
+		if synonym_filter is not None: # True or False
+			self.synonym_filter = synonym_filter
+			if synonym_filter: # 주의: 현재 상태 모드의 kor_tokneizer가 입력.
+				self.syn_graph_filter = SynonymGraphFilter(self.kor_tokenizer, synonym_mode)
 		pass
 
