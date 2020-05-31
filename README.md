@@ -75,11 +75,13 @@ print(nori.do_analysis("가벼운 냉장고")['termAtt'])
 ## Resources
 
 * 시스템 사전은 `~/pynori/resources/mecab-ko-dic-2.1.1-20180720` 에서 수정
-   * (mecab 규칙 준수 필요) 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가
-   * 사전 변경사항은 `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 를 삭제하면 적용 o
-   * (`mecab_csv.pkl` 파일이 없으면 KoreanAnalyzer 초기화 시에 최신 csv 파일을 기반으로 재생성됨)
-* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정만 하면 자동 적용 o
-* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정만 하면 자동 적용 o
+   * 사전 변경사항은 다음 두 항목을 실시하면 곧바로 적용 가능
+      * 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가 (주의. mecab 단어 작성 규칙)
+      * 기존 `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 삭제
+      * (참고. `mecab_csv.pkl` 파일이 없으면 KoreanAnalyzer 초기화 시에 최신 csv 파일을 기반으로 재생성)
+      * (참고. `~/pynori/resources/pkl_mecab_matrix/matrix_def.pkl` 파일은 삭제하지 말 것)
+* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정만 하면 곧바로 적용 가능
+* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정만 하면 곧바로 적용 가능
 
 ## Test
 
