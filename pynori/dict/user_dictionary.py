@@ -22,12 +22,14 @@ class UserDictionary(Dictionary):
 			for line in rf:
 				line = line.strip()
 				if len(line) == 0:
-				    continue
+					continue
+				if line[:2] == '# ': # 주석 line
+					continue
 				entries.append(line)
 		if len(entries) == 0:
-		    return None
+			return None
 		else:
-		    return UserDictionary(entries)
+			return UserDictionary(entries)
 
 	def __init__(self, entries):
 		charDef = CharacterDefinition()

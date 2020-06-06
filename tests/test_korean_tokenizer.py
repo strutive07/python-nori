@@ -26,7 +26,7 @@ PATH_USER_DICT = cfg['PATH']['USER_DICT']
 ## Initization
 print('KoreanTokenizer Initializing...')
 
-tokenizer = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.NONE, False, True)
+tokenizer = KoreanTokenizer(verbose=False, path_userdict=PATH_USER_DICT, decompound_mode=DcpdMode.NONE, infl_decompound_mode=DcpdMode.NONE, output_unknown_unigrams=False, discard_punctuation=True)
 tokenizer_with_punctuation = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, False, False)
 tokenizer_unigram = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, True, True)
 tokenizer_decompound = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.DISCARD, False, True)
@@ -71,6 +71,7 @@ class TestKoreanTokenizer(unittest.TestCase):
 		self.assertEqual(self.do(tokenizer_with_punctuation, 'termAtt', "10.1 인치 모니터"), ['10', '.', '1', ' ', '인치', ' ', '모니터'])	
 		self.assertEqual(self.do(tokenizer_with_punctuation, 'offsetAtt', "10.1 인치 모니터"), [(0, 2), (2, 3), (3, 4), (4, 5), (5, 7), (7, 8), (8, 11)])
 		self.assertEqual(self.do(tokenizer_with_punctuation, 'posLengthAtt', "10.1 인치 모니터"), [1, 1, 1, 1, 1, 1, 1])
+
 		self.assertEqual(self.do(tokenizer, 'termAtt', "10.1 인치 모니터"), ['10', '1', '인치', '모니터'])	
 		self.assertEqual(self.do(tokenizer, 'offsetAtt', "10.1 인치 모니터"), [(0, 2), (3, 4), (5, 7), (8, 11)])
 		self.assertEqual(self.do(tokenizer, 'posLengthAtt', "10.1 인치 모니터"), [1, 1, 1, 1])

@@ -519,14 +519,14 @@ class KoreanTokenizer(object):
 					if ch == -1:
 						break
 
-					user_lookup_result = self.user_dict.userTrie.search(self.buffer.slice_get(self.pos, posAhead + 1))
+					_, userIdRef = self.user_dict.userTrie.search(self.buffer.slice_get(self.pos, posAhead + 1))
 					# 주의: [{'surface': '위메이크프라이스', 'left_id': 1781, 'right_id': 3534, 'word_cost': -100000, 'POS': 'NNG', 'POS_type': 'UnitTerm', 'analysis': '위메이크프라이스'}]
 					# 리스트 안에 하나의 dict 들어가 있음을 주의!
-					if user_lookup_result is not None: # Trie 결과는 항상 None 아니면 리스트 이다.
+					if userIdRef is not None: # Trie 결과는 항상 None 아니면 리스트 이다.
 						maxPosAhead = posAhead
 						#outputMaxPosAhead = output
 						#arcFinalOutMaxPosAhead = arc.nextFinalOutput.intValue()
-						lastResult = user_lookup_result[0] # 사용자 단어는 항상 유니크하므로 1개밖에 없다.
+						lastResult = userIdRef.result[0] # 사용자 단어는 항상 유니크하므로 1개밖에 없다.
 						anyMatches = True
 
 					posAhead += 1
@@ -566,12 +566,12 @@ class KoreanTokenizer(object):
 			        # dictionary instead of recomputing it each time a
 			        # match is found.
 
-					wordIdRef = self.kn_dict.sysTrie.search(self.buffer.slice_get(self.pos, posAhead+1))
+					_, wordIdRef = self.kn_dict.sysTrie.search(self.buffer.slice_get(self.pos, posAhead+1))
 					if wordIdRef is not None:
 						if self.verbose:
 						#if True:
 							print("    KNOWN word " + self.buffer.slice_get(self.pos, posAhead - self.pos + 1) + " toPos=" + str(posAhead + 1) + " " + str(len(wordIdRef)) + " wordIDs")
-						for each in wordIdRef:
+						for each in wordIdRef.result:
 							self.add(each, posData, self.pos, posAhead+1, None, Type.KNOWN)
 							anyMatches = True
 
@@ -619,8 +619,8 @@ class KoreanTokenizer(object):
 
 						posAhead += 1
 
-				wordIdRef = self.unk_dict.unkTrie.search(characterId)
-				wordIdRef = wordIdRef[0] # unknown은 항상 1개 밖에 없다.
+				_, wordIdRef = self.unk_dict.unkTrie.search(characterId)
+				wordIdRef = wordIdRef.result[0] # unknown은 항상 1개 밖에 없다.
 				if self.verbose:
 					print("    UNKNOWN word len=" + str(unknownWordLength) + " " + str(len(wordIdRef)) + " wordIDs")
 				self.add(wordIdRef, posData, self.pos, self.pos + unknownWordLength, None, Type.UNKNOWN)
@@ -800,8 +800,8 @@ class KoreanTokenizer(object):
 				# Add a token for whitespaces between terms
 				offset = backPos - self.last_backtrace_pos
 				len_ = backWordPos - backPos
-				wordIdRef = self.unk_dict.unkTrie.search('SPACE')
-				wordIdRef = wordIdRef[0]
+				_, wordIdRef = self.unk_dict.unkTrie.search('SPACE')
+				wordIdRef = wordIdRef.result[0]
 				spaceToken = DictionaryToken(dictType=Type.UNKNOWN, dictionary=None, wordId=None, surfaceForm=' ', 
 											 offset=offset, length=len_, startOffset=backPos, endOffset=backPos+len_, 
 											 posType=POS.Type.MORPHEME, morphemes=None, posTag=wordIdRef['POS'])

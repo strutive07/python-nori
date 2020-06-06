@@ -6,6 +6,9 @@ from pynori.korean_posstop_filter import KoreanPOSStopFilter
 from pynori.synonym_graph_filter import SynonymGraphFilter
 from pynori.preprocessing import Preprocessing
 
+from pynori.korean_tokenizer import DcpdMode
+from pynori.synonym_graph_filter import SynMode
+
 
 cfg = ConfigParser()
 #PATH_CUR = os.getcwd() + '/pynori'
@@ -24,7 +27,6 @@ USE_POS_FILTER = cfg.getboolean('FILTER', 'USE_POS_FILTER')
 MODE_SYNONYM_FILTER = cfg['FILTER']['MODE_SYNONYM_FILTER']
 # PATH
 PATH_USER_DICT = cfg['PATH']['USER_DICT']
-
 
 
 class KoreanAnalyzer(object):
@@ -46,7 +48,7 @@ class KoreanAnalyzer(object):
 				 pos_filter=USE_POS_FILTER,
 				 stop_tags=KoreanPOSStopFilter.DEFAULT_STOP_TAGS,
 				 synonym_filter=USE_SYNONYM_FILTER, 
-				 synonym_mode=MODE_SYNONYM_FILTER):
+				 mode_synonym=MODE_SYNONYM_FILTER):
 		self.preprocessor = Preprocessing()
 		self.kor_tokenizer = KoreanTokenizer(verbose, 
 											 path_userdict, 
@@ -57,56 +59,102 @@ class KoreanAnalyzer(object):
 		self.pos_filter = pos_filter
 		self.kor_pos_filter = KoreanPOSStopFilter(stop_tags=stop_tags)
 		self.synonym_filter = synonym_filter
+		self.mode_synonym = mode_synonym
 		self.syn_graph_filter = None
-		if synonym_filter: # SynonymGraphFilter 초기화 처리 지연 시간으로 True일 때만 활성.
-			self.syn_graph_filter = SynonymGraphFilter(self.kor_tokenizer, synonym_mode)
+		if self.synonym_filter: # SynonymGraphFilter 초기화 처리 지연 시간으로 True일 때만 활성.
+			self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.preprocessor, 
+													   kor_tokenizer=self.kor_tokenizer, 
+													   mode_synonym=self.mode_synonym)
 
 	def do_analysis(self, in_string):
-		"""Analyze text input string and return tokens"""
+		"""Analyze text input string and return tokens
+			
+			Filtering 순서에 유의. (POS -> SYNONYM)
+		"""
 
-		# Pre-processing
+		##################
+		# Pre-processing #
+		##################
 		in_string = self.preprocessor.pipeline(in_string)
 
-		# Tokenizing
+		##############
+		# Tokenizing #
+		##############
 		self.kor_tokenizer.set_input(in_string)
 		while self.kor_tokenizer.increment_token():
 			pass
 		tkn_attr_obj = self.kor_tokenizer.tkn_attr_obj
 
-		# POS Filtering
+		#################
+		# POS Filtering #
+		#################
 		if self.pos_filter:
 			tkn_attr_obj = self.kor_pos_filter.do_filter(tkn_attr_obj)
 
-		# Synonym Filtering
+		#####################
+		# Synonym Filtering #
+		#####################
 		if self.synonym_filter:
 			tkn_attr_obj = self.syn_graph_filter.do_filter(tkn_attr_obj)
 
-		# Post-processing
+		# reset token offset
+		#tkn_attr_obj = self._reset_token_offset(tkn_attr_obj)
+
+		###################
+		# Post-processing #
+		###################
 		# ...
 
 		return tkn_attr_obj.__dict__
+
+	def _reset_token_offset(self, tkn_attrs):
+		# TODO: 필터링 후 포지션 재정렬 필요.
+		pass
 
 	def set_option_tokenizer(self,
 							 decompound_mode=None, 
 							 infl_decompound_mode=None, 
 							 output_unknown_unigrams=None, 
 							 discard_punctuation=None):
-		if decompound_mode is not None: self.kor_tokenizer.mode = decompound_mode
-		if infl_decompound_mode is not None: self.kor_tokenizer.infl_mode = infl_decompound_mode
-		if output_unknown_unigrams is not None: self.kor_tokenizer.output_unknown_unigrams = output_unknown_unigrams
-		if discard_punctuation is not None: self.kor_tokenizer.discard_punctuation = discard_punctuation
+		if decompound_mode is not None: 
+			self.kor_tokenizer.mode = decompound_mode
+		if infl_decompound_mode is not None: 
+			self.kor_tokenizer.infl_mode = infl_decompound_mode
+		if output_unknown_unigrams is not None: 
+			self.kor_tokenizer.output_unknown_unigrams = output_unknown_unigrams
+		if discard_punctuation is not None: 
+			self.kor_tokenizer.discard_punctuation = discard_punctuation
 		pass
 
 	def set_option_filter(self,
 						  pos_filter=None,
 						  stop_tags=None,
 						  synonym_filter=None,
-						  synonym_mode=None):
-		if pos_filter is not None: self.pos_filter = pos_filter
-		if stop_tags is not None: self.kor_pos_filter.stop_tags = stop_tags
-		if synonym_filter is not None: # True or False
+						  mode_synonym=None):
+		if pos_filter is not None:
+			self.pos_filter = pos_filter
+		if stop_tags is not None:
+			self.kor_pos_filter.stop_tags = stop_tags
+		if synonym_filter is not None or mode_synonym is not None:
+			if self.synonym_filter or synonym_filter:
+				# 주의: 현재 상태 모드의 kor_tokneizer가 입력.
+				self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.preprocessor,
+														   kor_tokenizer=self.kor_tokenizer, 
+														   mode_synonym=mode_synonym)
+		if mode_synonym is not None:
+			self.mode_synonym = mode_synonym
+		if synonym_filter is not None:
 			self.synonym_filter = synonym_filter
-			if synonym_filter: # 주의: 현재 상태 모드의 kor_tokneizer가 입력.
-				self.syn_graph_filter = SynonymGraphFilter(self.kor_tokenizer, synonym_mode)
 		pass
+
+
+if __name__ == "__main__":
+
+	nori = KoreanAnalyzer(decompound_mode=DcpdMode.MIXED,
+						  infl_decompound_mode=DcpdMode.DISCARD,
+						  discard_punctuation=True,
+						  output_unknown_unigrams=False,
+						  pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'])
+
+	print(nori.do_analysis("아빠가 방에 들어가신다."))
 

@@ -4,13 +4,17 @@ Reference: https://github.com/apache/lucene-solr/blob/master/lucene/analysis/nor
 
 import unittest
 from pynori.korean_analyzer import KoreanAnalyzer
+
 from pynori.korean_tokenizer import DcpdMode
+from pynori.synonym_graph_filter import SynMode
+
 
 ## Initization
 print('KoreanAnalyzer Initializing...')
 analyzer = KoreanAnalyzer(pos_filter=True, decompound_mode=DcpdMode.DISCARD)
 analyzer_stoptags = KoreanAnalyzer(pos_filter=True, stop_tags=['NNP', 'NNG'], decompound_mode=DcpdMode.DISCARD)
 analyzer_stoptags_infl = KoreanAnalyzer(pos_filter=True, stop_tags=['ETM', 'EP'], decompound_mode=DcpdMode.MIXED, infl_decompound_mode=DcpdMode.MIXED)
+analyzer_synonym = KoreanAnalyzer(decompound_mode=DcpdMode.DISCARD, infl_decompound_mode=DcpdMode.DISCARD, discard_punctuation=True, output_unknown_unigrams=False, pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'], synonym_filter=True, mode_synonym=SynMode.NORM)
 
 
 class TestKoreanAnalyzer(unittest.TestCase):
@@ -35,6 +39,13 @@ class TestKoreanAnalyzer(unittest.TestCase):
 		self.assertEqual(self.do(analyzer_stoptags_infl, 'termAtt', "가벼운 냉장고"), ['가볍', '냉장고', '냉장', '고'])
 		self.assertEqual(self.do(analyzer_stoptags_infl, 'termAtt', "들어가신다"), ['들어가', 'ㄴ다'])
 
+	def test_synonym(self):
+
+		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "NLP 개발자"), ['자연어', '처리', '개발', '자'])
+
+		analyzer_synonym.set_option_tokenizer(decompound_mode=DcpdMode.MIXED, infl_decompound_mode=DcpdMode.MIXED)
+		analyzer_synonym.set_option_filter(mode_synonym=SynMode.EXT)
+		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "AI 개발자"), ['인공지능', '인공', '지능', 'ai', 'aritificial', 'intelligence', '개발자', '개발', '자', 'developer'])
 
 	def tearDown(self):
 		pass

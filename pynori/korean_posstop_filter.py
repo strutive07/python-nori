@@ -27,6 +27,7 @@ class KoreanPOSStopFilter(object):
 
 	def __init__(self, stop_tags=DEFAULT_STOP_TAGS):
 		self.stop_tags=stop_tags
+		pass
 
 	def do_filter(self, tkn_attrs):
 		cur_pos_list = tkn_attrs.posTagAtt
@@ -48,8 +49,6 @@ class KoreanPOSStopFilter(object):
 				if bool_applied_stoptag_list[i] == True:
 					new_value_list.append(cur_value_list[i])
 			setattr(tkn_attrs, name, new_value_list)
-
-		# TODO: POS 필터링 후 포지션 재정렬 필요.
 
 		return tkn_attrs
 

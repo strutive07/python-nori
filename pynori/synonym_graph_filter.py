@@ -1,7 +1,9 @@
 import os
+from copy import deepcopy
+
 from configparser import ConfigParser
 from pynori.dict.trie import Trie
-
+from pynori.token_attribute import TokenAttribute
 
 cfg = ConfigParser()
 #PATH_CUR = os.getcwd() + '/pynori'
@@ -11,6 +13,12 @@ cfg.read(PATH_CUR+'/config.ini')
 # PATH
 PATH_SYN_DICT = cfg['PATH']['SYN_DICT']
 
+
+
+class SynMode(object):
+	""" Synonym mode to select synonyms """
+	NORM = 'NORM' # select representative synonym token
+	EXT = 'EXTENSION' # select all synonym tokens
 
 
 class SynonymGraphFilter(object):
@@ -23,48 +31,95 @@ class SynonymGraphFilter(object):
 	----------
 	kor_tokenizer
 
-	synonym_mode : {'EXTENSION', 'NORM'}
-	
+	mode_synonym : {'EXTENSION', 'NORM'}
+
+	동의어 필터링 특징
+	 - Decompound 모드(MIXED, DISCARD, NONE)에 상관없이 동작
+
 	"""
 
-	def __init__(self, kor_tokenizer, synonym_mode):
-		self.tokenizer = kor_tokenizer
-		self.synonym_mode = synonym_mode
-		#self.entries = self.open(PATH_CUR+PATH_SYN_DICT)
+	def __init__(self, preprocessor, kor_tokenizer, mode_synonym):
+		self.SEP_CHAR = '_' # separate charcter in token
+		self.preprocessor = preprocessor
+		self.kor_tokenizer = kor_tokenizer # korean_analyzer.py 에서 decompound mode가 이미 결정
+		self.mode_synonym = mode_synonym
+		self.syn_trie = None
+		self.synonym_build(PATH_CUR+PATH_SYN_DICT)
 		pass
 
-	def open(self, path_syn_file):
+	def _simple_tokenizer(self, in_string):
+		# Pre-processing
+		in_string = self.preprocessor.pipeline(in_string)
+		# Tokenizing
+		self.kor_tokenizer.set_input(in_string)
+		while self.kor_tokenizer.increment_token():
+			pass
+		return self.kor_tokenizer.tkn_attr_obj
+
+	def synonym_build(self, path_syn_file):
+		# File Read
 		entries = []
 		with open(path_syn_file, 'r', encoding='utf-8') as rf:
 			for line in rf:
 				line = line.strip()
+				if len(line) == 0:
+					continue
+				if line[:2] == '# ': # 주석 line
+					continue
 				entries.append(line)
-		return entries
+		
+		# Save entries to data structure.
+		self.syn_trie = Trie()
+		for line in entries:
+			tkn_attr_obj_list = []
+			for i, token in enumerate(line.split(',')): # list
+				tkn_attr_obj_list.append(self._simple_tokenizer(token)) # tkn_attr_obj
 
-	# [ TODO ] - 동의어 관련 데이터 저장
-	# Trie 를 활용하여 동의어 단어 룩업 구조 구현
-	# Trie 에는 key는 토큰을, value는 동의어 리스트 또는 동의어 대표어를 할당 (저장 시 토크나이징 결과 반영)
-	# 토크나이징 결과를 (id, 결과) 형태로 dict 에 저장 -> Trie 에 id만 저장
+			if self.mode_synonym == SynMode.EXT:
+				trie_result = tkn_attr_obj_list
+			elif self.mode_synonym == SynMode.NORM:
+				trie_result = [tkn_attr_obj_list[0]] # 첫 번째 토큰을 동의어 대표어
 
+			for tkn_attr_obj in tkn_attr_obj_list: # result
+				self.syn_trie.insert(self.SEP_CHAR.join(tkn_attr_obj.termAtt), trie_result)
+
+	def _set_token_attribute(self, source, target, idx):
+		for name, _ in target.__dict__.items():
+			target.__dict__[name].append(source.__dict__[name][idx])
+		return target
 
 	def do_filter(self, tkn_attrs):
+		new_tkn_attrs = TokenAttribute()
+		token_list = tkn_attrs.termAtt
+		step = -1
 
-		# [ TODO ] - 동의어 필터링 방식
-		# 토크나이징 모드(MIXED, DISCARD, NONE)에 상관없이 동작해야 함
-		# ['lg', 'tv', '냉장', '고']
-		# 왼쪽에서 오른쪽으로 늘리면서 Trie 룩업 체크.
-		# 'lg' 룩업 -> (O) -> [X]
-		# 'lg_tv' 룩업 -> (O) -> [O]
-		## 'lg_tv'에서 Trie를 더이상 내려가지 않아도 된다는 흔적이 있으면? 굳이 'lg_tv_냉장'을 룩업할 필요 x.
-		## Trie에 데이터를 넣을 때, 정렬 후 가장 긴 길이부터 항상 넣고, 넣을 때, 이게 마지막이라는 flag 정보도 함께 넣는다면.?
-		# 'lg_tv_냉장' 룩업 -> [X]
-		# '냉장' 룩업 -> (O) -> [X]
-		# '냉장_고' 룩업 -> (O) -> [O]
-		# 다음 토큰 없음.
-		# Trie 룩업 횟수를 최소화할 수 있는 방안 필요
-		# Trie 룩업의 마지막 위치를 기억할 수 있는 기능 필요 (토큰이 짧지만, 횟수가 많기 때문에 유의미할 듯)
-		# Trie 에서 찾아들어가는 위치를 캐쉬할 수 있나?
-		# Trie 룩업은 항상 처음부터 시작해야 하나?
+		for m, _ in enumerate(token_list):
+			if m <= step:
+				# m 이 아닌 n+1 이상에서 [C]가 실행된 경우 step을 맞춰줌
+				continue
 
-		return tkn_attrs
+			step = m
+			token = token_list[step] # 현재 step의 token
+			for n in range(m, len(token_list)):
+				tkn, node = self.syn_trie.search(token)
+				if tkn == False and node is None: # [A]
+					# 해당 token 중 어떤 음절이라도 node 생성이 되지 않은 경우
+					new_tkn_attrs = self._set_token_attribute(tkn_attrs, new_tkn_attrs, n)
+					break
+
+				if tkn == True and node is None: # [B]
+					# 해당 token이 노드가 생성된 token의 부분집합이고 그의 동의어가 없는 경우 (ex. '노리_분석기' 에서 현재 token이 '노리')
+					if n != len(token_list)-1:
+						token += self.SEP_CHAR
+						token += token_list[n+1]
+					# no break.
+				if tkn == True and node is not None: # [C]
+					# 동의어 사전 룩업 성공
+					for trie_tkn_attrs in node.result[0]:
+						for k, _ in enumerate(trie_tkn_attrs.termAtt):
+							new_tkn_attrs = self._set_token_attribute(trie_tkn_attrs, new_tkn_attrs, k)
+					step = n
+					break
+
+		return new_tkn_attrs
 

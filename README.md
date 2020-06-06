@@ -27,11 +27,12 @@ pip install pynori
 
 ```python
 from pynori.korean_analyzer import KoreanAnalyzer
-nori = KoreanAnalyzer(decompound_mode='MIXED',
-                      infl_decompound_mode='DISCARD',
+nori = KoreanAnalyzer(decompound_mode='DISCARD', # DISCARD or MIXED or NONE
+                      infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
                       discard_punctuation=True,
                       output_unknown_unigrams=False,
-                      pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'])
+                      pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
+                      synonym_filter=False, mode_synonym='NORM') # NORM or EXTENSION
 
 print(nori.do_analysis("아빠가 방에 들어가신다."))
 ```
@@ -53,24 +54,35 @@ print(nori.do_analysis("아빠가 방에 들어가신다."))
    * `output_unknown_unigrams` - 언논 단어를 음절 단위로 쪼갬 여부
    * `pos_filter` - POS 필터 실행 여부
    * `stop_tags` - 필터링되는 POS 태그 리스트 (pos_filter=True일 때만 활성)
+   * `synonym_filter` - 동의어 필터 실행 여부
+   * `mode_synonym` - 동의어 처리 모드 (NORM or EXTENSION) (synonym_filter=True일 때만 활성)
 
 다음과 같이 KoreanAnalyzer의 옵션을 동적으로 제어할 수 있습니다.
 
 ```python
 print(nori.do_analysis("가벼운 냉장고")['termAtt'])
+# ['가볍', 'ᆫ', '냉장', '고']
 
-nori.set_option_tokenizer(decompound_mode='DISCARD', infl_decompound_mode='MIXED')
+## 토크나이저 옵션 세팅
+nori.set_option_tokenizer(decompound_mode='MIXED', infl_decompound_mode='MIXED')
 print(nori.do_analysis("가벼운 냉장고")['termAtt'])
+# ['가벼운', '가볍', 'ᆫ', '냉장고', '냉장', '고']
 
+## POS 필터 옵션 세팅
 nori.set_option_filter(pos_filter=True, stop_tags=['ETM', 'VA'])
 print(nori.do_analysis("가벼운 냉장고")['termAtt'])
-```
-```
-['가볍', 'ᆫ', '냉장고', '냉장', '고']
-['가벼운', '가볍', 'ᆫ', '냉장', '고']
-['냉장', '고']
-```
+# ['냉장고', '냉장', '고']
 
+## 동의어 필터 옵션 세팅
+nori.set_option_filter(synonym_filter=True, mode_synonym='NORM')
+print(nori.do_analysis("NLP 개발자")['termAtt'])
+# ['자연어처리', '자연어', '처리', '개발자', '개발', '자']
+
+nori.set_option_tokenizer(decompound_mode='DISCARD', infl_decompound_mode='DISCARD') # DISCARD 로 변경.
+nori.set_option_filter(mode_synonym='EXTENSION')
+print(nori.do_analysis("AI 개발자")['termAtt'])
+# ['인공', '지능', 'ai', 'aritificial', 'intelligence', '개발', '자', 'developer']
+```
 
 ## Resources
 
@@ -79,9 +91,10 @@ print(nori.do_analysis("가벼운 냉장고")['termAtt'])
       * 기존 csv 파일 수정/삭제 or 새로운 csv 파일 추가 (주의. mecab 단어 작성 규칙)
       * 기존 `~/pynori/resources/pkl_mecab_csv/mecab_csv.pkl` 삭제
       * (참고. `mecab_csv.pkl` 파일이 없으면 KoreanAnalyzer 초기화 시에 최신 csv 파일을 기반으로 재생성)
-      * (참고. `~/pynori/resources/pkl_mecab_matrix/matrix_def.pkl` 파일은 삭제하지 말 것)
-* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정만 하면 곧바로 적용 가능
-* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정만 하면 곧바로 적용 가능
+      * (참고. `~/pynori/resources/pkl_mecab_matrix/matrix_def.pkl` 파일은 수정/삭제하지 말 것)
+      * (참고. 다른 버전의 mecab-ko-dic 적용을 위해서는 코드 내의 path 수정 필요)
+* 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정 (곧바로 적용 가능)
+* 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정 (곧바로 적용 가능)
 
 ## Test
 
@@ -98,9 +111,9 @@ python -m unittest -v tests.test_korean_tokenizer
 * [원본] 루씬(lucene), 노리(nori) 형태소 분석기 (ref.1)
 * 원본 코드와 최대한 비슷하게 구현 (변수/파일명, 코드 패턴 등)
 * 언어 리소스로 `mecab-ko-dic-2.1.1-20180720` 사용
-* 사전 룩업을 위해 Trie 자료구조 사용 (instead of FST)
+* 사전 룩업을 위해 Trie 자료구조 사용 (FST 보완 필요)
 * token & dictionary objects 수정
-* circular buffer & wordID 삭제
+* circular buffer & wordID 미활용
 
 _원본 Nori 대비 개선 기능_
 
@@ -108,11 +121,11 @@ _원본 Nori 대비 개선 기능_
 * 특수문자로 시작/포함하는 사용자 단어가 있을 시 동의어 파싱 오류 해결
 * infl_decompound_mode 모드 추가
 * KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
+* 동의어 필터링 - 대표어 처리 기능 추가
 
 
 ## TODO
 
-* 동의어 확장 필터
 * 필터 후 토큰 인덱스/포지션 재배열
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 * 속도 향상을 위한 알고리즘 및 자료구조 최적화
@@ -138,12 +151,13 @@ _원본 Nori 대비 개선 기능_
 
 | 버전             | 주요 내용             | 날짜     |
 | :-------------: | :-------------: | :-----: |
-| pynori 0.1.0    | 기본적인 노리 파이썬 패키지 포팅 & & 유닛테스트 구현 완료 | Nov 17, 2019 |
+| pynori 0.1.0    | 노리 기본 모듈 파이썬 포팅 & 유닛테스트 구현 완료 | Nov 17, 2019 |
 | pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9s)     | Apr 16, 2020 |
 | pynori 0.1.2    | infl_decompound_mode 모드 추가                        | Apr 23, 2020 |
 | pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가           | Apr 25, 2020 |
+| pynori 0.2.0    | 동의어 처리 모듈 (SynonymGraphFilter) 추가           | Jun 6, 2020 |
 
-최신 Release 버전은 0.1.4 입니다.
+최신 Release 버전은 0.2.0 입니다.
 
 ## License
 
