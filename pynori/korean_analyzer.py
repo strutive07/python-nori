@@ -72,6 +72,11 @@ class KoreanAnalyzer(object):
 			Filtering 순서에 유의. (POS -> SYNONYM)
 		"""
 
+		if not isinstance(in_string, str):
+			raise ValueError(
+					f"the input type must be {type('')}"
+				)
+
 		##################
 		# Pre-processing #
 		##################

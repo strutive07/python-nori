@@ -105,7 +105,7 @@ class KoreanTokenizer(object):
 		self.pending = []
 		# Add BOS
 		self.positions.get(0).add(0, 0, -1, -1, -1, -1, Type.KNOWN, None, None, None)
-				
+		
 	def set_input(self, in_string):
 		"""Load input korean string to buffer."""
 
