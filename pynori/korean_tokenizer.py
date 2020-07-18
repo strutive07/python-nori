@@ -279,7 +279,7 @@ class KoreanTokenizer(object):
 				index += len(self.positions)
 			return index
 		
-		# TODO: circular buffer 사용법 확인.
+		# TODO: circular buffer 사용법 확인. (참고. circular buffer 사용하지 않음.)
 		#def freeBefore(self, pos):
 		#	toFree = self.count - (self.nextPos - pos)
 		#	assert toFree >= 0
@@ -834,10 +834,12 @@ class KoreanTokenizer(object):
 
 		특수문자 토큰들을 제거하기 위한 함수 (ex. '.', '-', '#', '*', '---', '****' ...)
 		사용자 사전 특징으로 특수문자가 포함된 토큰들이 사용자 단어로 지정될 수 있음 (ex. '안녕#', '!노리', '형#태소')
-		self.user_dict.userTrie.search() 함수를 사용해서 체크한 뒤, filter 여부 결정이 필요.
 
-		사용자 사전에 특수문자가 포함된 토큰들이 없다면, 위 userTrie.search() 함수 사용은 속도 저하를 일으킴.
-		단순하게, 아래와 같이 '하나라도 punctuation'이 있으면 삭제하는 방법 선택.
+		self.user_dict.userTrie.search() 함수를 사용해서 체크한 뒤, filter 여부 결정이 필요. (이상적인 구현임)
+		(그러나) 사용자 사전에 특수문자가 포함된 토큰들이 없다면, 위 userTrie.search() 함수 사용은 속도 저하를 일으킴.
+		(따라서) 단순하게, 아래와 같이 '하나라도 punctuation'이 있으면 삭제하는 방법 선택.
+
+		사용자 사전 작성 정책에 따라서 (특수문자 부분) 이 함수의 정의가 달라져야 함.
 		"""
 		is_punct = True
 		for ch in token.getSurfaceForm(): # 토큰 전체를 대상으로 탐색.

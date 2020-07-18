@@ -19,19 +19,26 @@ class Preprocessing(object):
 		pass
 	
 	def pipeline(self, input_str):
+		""" the sequence of preprocessing modules.
+		"""
+
+		# Lower
 		if ENG_LOWER:
-			input_str = self.lower(input_str)
+			input_str = self._lower(input_str)
 		
+		# ...
+
 		return input_str
 
-	def lower(self, input_str):
+	def _lower(self, input_str):
+		"""To lower input string"""
 		return input_str.lower()
 		
-	def typo(self, input_str):
+	def _typo(self, input_str):
 		"""To correct typing errors"""
 		pass
 		
-	def spacing(self, input_str):
+	def _spacing(self, input_str):
 		"""To correct spacing errors"""
 		pass
 	
