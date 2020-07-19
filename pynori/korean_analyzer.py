@@ -4,8 +4,10 @@ from configparser import ConfigParser
 from pynori.korean_tokenizer import KoreanTokenizer
 from pynori.korean_posstop_filter import KoreanPOSStopFilter
 from pynori.synonym_graph_filter import SynonymGraphFilter
-from pynori.preprocessing import Preprocessing
+from pynori.pre_processing import PreProcessing
+from pynori.post_processing import PostProcessing
 
+from pynori.korean_tokenizer import Type
 from pynori.korean_tokenizer import DcpdMode
 from pynori.synonym_graph_filter import SynMode
 
@@ -49,7 +51,8 @@ class KoreanAnalyzer(object):
 				 stop_tags=KoreanPOSStopFilter.DEFAULT_STOP_TAGS,
 				 synonym_filter=USE_SYNONYM_FILTER, 
 				 mode_synonym=MODE_SYNONYM_FILTER):
-		self.preprocessor = Preprocessing()
+		self.pre_processor = PreProcessing()
+		self.post_processor = PostProcessing()
 		self.kor_tokenizer = KoreanTokenizer(verbose, 
 											 path_userdict, 
 											 decompound_mode,
@@ -62,7 +65,7 @@ class KoreanAnalyzer(object):
 		self.mode_synonym = mode_synonym
 		self.syn_graph_filter = None
 		if self.synonym_filter: # SynonymGraphFilter 초기화 처리 지연 시간으로 True일 때만 활성.
-			self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.preprocessor, 
+			self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.pre_processor, 
 													   kor_tokenizer=self.kor_tokenizer, 
 													   mode_synonym=self.mode_synonym)
 
@@ -80,7 +83,7 @@ class KoreanAnalyzer(object):
 		##################
 		# Pre-processing #
 		##################
-		in_string = self.preprocessor.pipeline(in_string)
+		in_string = self.pre_processor.lower(in_string)
 
 		##############
 		# Tokenizing #
@@ -108,7 +111,12 @@ class KoreanAnalyzer(object):
 		###################
 		# Post-processing #
 		###################
-		# ...
+		MIN_CHAR_LENGTH = 7
+		if len(tkn_attr_obj.termAtt) == 1 and tkn_attr_obj.dictTypeAtt[0] == Type.UNKNOWN and len(tkn_attr_obj.termAtt[0]) >= MIN_CHAR_LENGTH:
+			tkn_attr_obj = self.post_processor.relax_long_unk(tkn_attr_obj, self.kor_tokenizer)
+
+		# reset token offset
+		#tkn_attr_obj = self._reset_token_offset(tkn_attr_obj)
 
 		return tkn_attr_obj.__dict__
 
@@ -143,7 +151,7 @@ class KoreanAnalyzer(object):
 		if synonym_filter is not None or mode_synonym is not None:
 			if self.synonym_filter or synonym_filter:
 				# 주의: 현재 상태 모드의 kor_tokneizer가 입력.
-				self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.preprocessor,
+				self.syn_graph_filter = SynonymGraphFilter(preprocessor=self.pre_processor,
 														   kor_tokenizer=self.kor_tokenizer, 
 														   mode_synonym=mode_synonym)
 		if mode_synonym is not None:

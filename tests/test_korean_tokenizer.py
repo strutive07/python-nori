@@ -27,12 +27,12 @@ PATH_USER_DICT = cfg['PATH']['USER_DICT']
 print('KoreanTokenizer Initializing...')
 
 tokenizer = KoreanTokenizer(verbose=False, path_userdict=PATH_USER_DICT, decompound_mode=DcpdMode.NONE, infl_decompound_mode=DcpdMode.NONE, output_unknown_unigrams=False, discard_punctuation=True)
-tokenizer_with_punctuation = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, False, False)
-tokenizer_unigram = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.NONE, DcpdMode.DISCARD, True, True)
-tokenizer_decompound = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.DISCARD, False, True)
-tokenizer_decompound_keep = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.MIXED, DcpdMode.MIXED, False, True)
-tokenizer_infl_decompound_none = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.NONE, False, True)
-tokenizer_infl_decompound_mixed = KoreanTokenizer(False, PATH_USER_DICT, DcpdMode.DISCARD, DcpdMode.MIXED, False, True)
+tokenizer_with_punctuation = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.NONE, infl_decompound_mode=DcpdMode.DISCARD, output_unknown_unigrams=False, discard_punctuation=False)
+tokenizer_unigram = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.NONE, infl_decompound_mode=DcpdMode.DISCARD, output_unknown_unigrams=True, discard_punctuation=True)
+tokenizer_decompound = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.DISCARD, infl_decompound_mode=DcpdMode.DISCARD, output_unknown_unigrams=False, discard_punctuation=True)
+tokenizer_decompound_keep = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.MIXED, infl_decompound_mode=DcpdMode.MIXED, output_unknown_unigrams=False, discard_punctuation=True)
+tokenizer_infl_decompound_none = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.DISCARD, infl_decompound_mode=DcpdMode.NONE, output_unknown_unigrams=False, discard_punctuation=True)
+tokenizer_infl_decompound_mixed = KoreanTokenizer(False, PATH_USER_DICT, decompound_mode=DcpdMode.DISCARD, infl_decompound_mode=DcpdMode.MIXED, output_unknown_unigrams=False, discard_punctuation=True)
 #analyzer_reading => test_korean_analyzer
 
 
@@ -159,10 +159,6 @@ class TestKoreanTokenizer(unittest.TestCase):
 
 		self.assertEqual(self.do(tokenizer_infl_decompound_none, 'termAtt', "가벼운 냉장고"), ['가벼운', '냉장', '고'])
 		self.assertEqual(self.do(tokenizer_infl_decompound_mixed, 'termAtt', "가벼운 냉장고"), ['가벼운', '가볍', 'ᆫ', '냉장', '고'])
-
-
-
-
 
 	def tearDown(self):
 		pass

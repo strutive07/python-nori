@@ -47,6 +47,11 @@ class TestKoreanAnalyzer(unittest.TestCase):
 		analyzer_synonym.set_option_filter(mode_synonym=SynMode.EXT)
 		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "AI 개발자"), ['인공지능', '인공', '지능', 'ai', 'aritificial', 'intelligence', '개발자', '개발', '자', 'developer'])
 
+	def test_relax_long_unk_token(self):
+
+		self.assertEqual(self.do(analyzer, 'termAtt', "ㅠㅠ아빠가방에들어가신다."), ['ㅠㅠ', '아빠', '가', '방', '에', '들어가', '시', 'ㄴ다'])
+		self.assertEqual(self.do(analyzer, 'termAtt', "뺡인공지능개발"), ['뺡', '인공', '지능', '개발'])
+
 	def tearDown(self):
 		pass
 		
