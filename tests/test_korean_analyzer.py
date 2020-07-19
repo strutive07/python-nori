@@ -51,6 +51,7 @@ class TestKoreanAnalyzer(unittest.TestCase):
 
 		self.assertEqual(self.do(analyzer, 'termAtt', "ㅠㅠ아빠가방에들어가신다."), ['ㅠㅠ', '아빠', '가', '방', '에', '들어가', '시', 'ㄴ다'])
 		self.assertEqual(self.do(analyzer, 'termAtt', "뺡인공지능개발"), ['뺡', '인공', '지능', '개발'])
+		self.assertEqual(self.do(analyzer, 'termAtt', "ㅠㅠㅠㅠㅠㅠㅠ"), ['ㅠㅠㅠㅠㅠㅠㅠ'])
 
 	def tearDown(self):
 		pass

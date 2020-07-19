@@ -51,12 +51,16 @@ class PostProcessing(object):
 		long_unknown_token = tkn_attr_obj.termAtt[0]
 
 		# 첫 문자가 반복되는 idx 획득
+		idx = -1
 		for i, ch in enumerate(long_unknown_token):
 			if i == 0:
 				pch = ch
 			if ch != pch:
 				idx = i
 				break
+
+		if idx == -1: # 아무것도 하지 않고 그대로 출력 (ex. 'ㅠㅠㅠㅠㅠㅠㅠ')
+			return tkn_attr_obj 
 
 		# 문자열 분할
 		front_string = long_unknown_token[:idx]
