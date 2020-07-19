@@ -19,7 +19,7 @@ long_description = """
 
 setup(
     name = 'pynori', 
-    version = '0.2.0', 
+    version = '0.2.1', 
 	
     url = 'https://github.com/gritmind/python-nori', 
     author = 'Yeongsu Kim', 
@@ -47,6 +47,8 @@ setup(
 	
 		# Specify the Python versions you support
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.5',
 		
         # Pick your license as you wish (should match "license" above)
         'License :: OSI Approved :: Apache Software License',

@@ -122,14 +122,14 @@ _원본 Nori 대비 개선 기능_
 * infl_decompound_mode 모드 추가
 * KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
 * 동의어 필터링 - 대표어 처리 기능 추가
-
+* Unknown 길이가 무분별하게 길어지는 현상 해결
 
 ## TODO
 
 * 필터 후 토큰 인덱스/포지션 재배열
 * KoreanTokenizer TODO List (MAX_BACKTRACE_GAP, isLowSurrogate, UnicodeScript ...)
 * 속도 향상을 위한 알고리즘 및 자료구조 최적화
-* Unknown 길이가 무분별하게 길어지는 현상 해결
+
 
 
 ## Comparision Study
@@ -156,8 +156,9 @@ _원본 Nori 대비 개선 기능_
 | pynori 0.1.2    | infl_decompound_mode 모드 추가                        | Apr 23, 2020 |
 | pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가           | Apr 25, 2020 |
 | pynori 0.2.0    | 동의어 처리 모듈 (SynonymGraphFilter) 추가           | Jun 6, 2020 |
+| pynori 0.2.1    | Long Unknown 토큰 완화 로직 추가        | Jul 19, 2020 |
 
-최신 Release 버전은 0.2.0 입니다.
+최신 Release 버전은 0.2.1 입니다.
 
 ## License
 
