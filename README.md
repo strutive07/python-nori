@@ -12,7 +12,7 @@ Pynori is python version of Nori, Korean Analyzer in Apache Lucene and Elasticse
    * 독립된 모듈로 파이썬 프로젝트 활용 가능
    * 원본 Nori 대비 개선 기능 (ref.Property)
 
-노리 형태소 분석기에 대한 내용은 [노리 Deep Dive 블로그](https://gritmind.github.io/2019/05/nori-deep-dive.html)를 참고해주세요.
+노리 형태소 분석기에 대한 내용은 [노리 Deep Dive 블로그](https://gritmind.blog/2020/07/22/nori_deep_dive/)를 참고해주세요.
 
 pynori에 대한 이슈 사항은 [issue](https://github.com/gritmind/python-nori/issues)에 등록해주세요. 
 
@@ -168,4 +168,4 @@ _원본 Nori 대비 개선 기능_
 1. (Github) [Lucene-solr - Nori](https://github.com/apache/lucene-solr/tree/master/lucene/analysis/nori)
 2. (Github) [Mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic/src/master/)
 3. (Blog) [엘라스틱서치 공식 한국어 분석 플러그인 '노리'](https://www.elastic.co/kr/blog/nori-the-official-elasticsearch-plugin-for-korean-language-analysis)
-4. (Blog) [노리(Nori) 형태소 분석기 Deep Dive](https://gritmind.github.io/2019/05/nori-deep-dive.html)
+4. (Blog) [노리(Nori) 형태소 분석기 Deep Dive](https://gritmind.blog/2020/07/22/nori_deep_dive/)
