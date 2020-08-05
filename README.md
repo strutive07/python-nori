@@ -158,7 +158,7 @@ _원본 Nori 대비 개선 기능_
 | pynori 0.2.0    | 동의어 처리 모듈 (SynonymGraphFilter) 추가           | Jun 6, 2020 |
 | pynori 0.2.1    | Long Unknown 토큰 완화 로직 추가        | Jul 19, 2020 |
 
-최신 Release 버전은 0.2.2 입니다.
+최신 Release 버전은 0.2.3 입니다.
 
 ## License
 

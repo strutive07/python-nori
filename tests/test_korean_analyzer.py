@@ -42,6 +42,9 @@ class TestKoreanAnalyzer(unittest.TestCase):
 	def test_synonym(self):
 
 		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "NLP 개발자"), ['자연어', '처리', '개발', '자'])
+		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "파이"), ['파이'])
+		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "파이선"), ['파이썬'])
+		self.assertEqual(self.do(analyzer_synonym, 'termAtt', "텍스트 마이닝"), ['텍스트마이닝'])
 
 		analyzer_synonym.set_option_tokenizer(decompound_mode=DcpdMode.MIXED, infl_decompound_mode=DcpdMode.MIXED)
 		analyzer_synonym.set_option_filter(mode_synonym=SynMode.EXT)

@@ -91,34 +91,59 @@ class SynonymGraphFilter(object):
 	def do_filter(self, tkn_attrs):
 		new_tkn_attrs = TokenAttribute()
 		token_list = tkn_attrs.termAtt
-		step = -1
+		step = 0
 
 		for m, _ in enumerate(token_list):
-			if m <= step:
+			if m < step:
 				# m 이 아닌 n+1 이상에서 [C]가 실행된 경우 step을 맞춰줌
 				continue
 
-			step = m
 			token = token_list[step] # 현재 step의 token
 			for n in range(m, len(token_list)):
 				tkn, node = self.syn_trie.search(token)
 				if tkn == False and node is None: # [A]
-					# 해당 token 중 어떤 음절이라도 node 생성이 되지 않은 경우
-					new_tkn_attrs = self._set_token_attribute(tkn_attrs, new_tkn_attrs, n)
-					break
+					# 해당 token의 마지막 음절 기준으로 trie 검색이 안되는 경우 & trie 검색 결과값이 없는 경우
+					# 단, token의 마지막이 아닌 음절은 trie 검색이 가능함.
+
+					if len(token.split(self.SEP_CHAR)) == 1:
+						new_tkn_attrs = self._set_token_attribute(tkn_attrs, new_tkn_attrs, n)
+						step = n+1
+						break
+					else:
+						new_tkn_attrs = self._set_token_attribute(tkn_attrs, new_tkn_attrs, n-1)
+						step = n
+						break
 
 				if tkn == True and node is None: # [B]
-					# 해당 token이 노드가 생성된 token의 부분집합이고 그의 동의어가 없는 경우 (ex. '노리_분석기' 에서 현재 token이 '노리')
-					if n != len(token_list)-1:
+					# 해당 token의 마지막 음절 기준으로 trie 검색이 된 경우 & trie 검색 결과값이 없는 경우
+					# ex) 해당 token이 노드가 생성된 token의 부분집합이고 그의 동의어가 없는 경우 (ex. '노리_분석기' 에서 현재 token이 '노리')
+
+					if n == len(token_list)-1:
+						new_tkn_attrs = self._set_token_attribute(tkn_attrs, new_tkn_attrs, n)
+					else:
 						token += self.SEP_CHAR
 						token += token_list[n+1]
-					# no break.
+						continue
+
 				if tkn == True and node is not None: # [C]
 					# 동의어 사전 룩업 성공
+					# 해당 token의 마지막 음절 기준으로 trie 검색이 된 경우 & trie 검색 결과값이 있는 경우
+
+					# 속도 감소가 우려됨. "노리_분석_기" 케이스 동의어 최장일치 확장 문제.
+					# if n < len(token_list)-1:
+					# 	# 한 토큰 앞을 먼저 확인. (동의어 최장일치를 위해서)
+					# 	while True:
+					# 		tkn_f, node_f = self.syn_trie.search(token+self.SEP_CHAR+token_list[n+1])
+					# 		if tkn_f == True and node_f is not None:
+					# 			break
+					# 		else:
+					# 			token += self.SEP_CHAR
+					# 			token += token_list[n+1]
+
 					for trie_tkn_attrs in node.result[0]:
 						for k, _ in enumerate(trie_tkn_attrs.termAtt):
 							new_tkn_attrs = self._set_token_attribute(trie_tkn_attrs, new_tkn_attrs, k)
-					step = n
+					step = n+1
 					break
 
 		return new_tkn_attrs

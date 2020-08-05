@@ -19,7 +19,7 @@ long_description = """
 
 setup(
     name = 'pynori', 
-    version = '0.2.2', 
+    version = '0.2.3', 
 	
     url = 'https://github.com/gritmind/python-nori', 
     author = 'Yeongsu Kim', 
