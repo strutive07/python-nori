@@ -1,6 +1,6 @@
-__pycache__/
-*.pyc
 .DS_Store
+__pycache__/
 build/
 dist/
 *.egg-info/
+*.pyc

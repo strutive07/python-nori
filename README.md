@@ -101,10 +101,9 @@ print(nori.do_analysis("AI 개발자")['termAtt'])
 ```
 git clone https://github.com/gritmind/python-nori.git
 cd python-nori
-python -m unittest -v tests.test_korean_analyzer
-python -m unittest -v tests.test_korean_tokenizer
+python -m unittest -v pynori.tests.test_korean_analyzer
+python -m unittest -v pynori.tests.test_korean_tokenizer
 ```
-
 
 ## Property
 
