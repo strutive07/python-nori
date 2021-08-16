@@ -1,4 +1,5 @@
 import os
+import gc
 import sys
 import unicodedata
 from datetime import datetime
@@ -84,6 +85,7 @@ class KoreanTokenizer(object):
 		self.output_unknown_unigrams = output_unknown_unigrams
 		self.discard_punctuation = discard_punctuation
 		self.verbose = verbose
+		gc.disable()
 		self.buffer = KoreanTokenizer.Buffer()
 		self.character_definition = CharacterDefinition()
 		self.user_dict = UserDictionary.open(PATH_CUR+path_userdict)
@@ -93,6 +95,7 @@ class KoreanTokenizer(object):
 		#print('\n RUN TIME: {}\n'.format(end_main - start_main))
 		self.unk_dict = UnknownDictionary.open(PATH_CUR+PATH_UNK_DICT)
 		self.conn_costs = ConnectionCosts.open(PATH_CUR+PATH_CONN_COST)
+		gc.enable()
 		self.reset_state()
 
 	def reset_state(self):
