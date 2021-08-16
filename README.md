@@ -26,6 +26,8 @@ pip install pynori
 ## Usage
 
 ```python
+# 디폴트 옵션: /pynori/config.ini 파일 참고
+
 from pynori.korean_analyzer import KoreanAnalyzer
 nori = KoreanAnalyzer(decompound_mode='DISCARD', # DISCARD or MIXED or NONE
                       infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
