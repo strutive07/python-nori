@@ -29,12 +29,14 @@ pip install pynori
 # 디폴트 옵션: /pynori/config.ini 파일 참고
 
 from pynori.korean_analyzer import KoreanAnalyzer
-nori = KoreanAnalyzer(decompound_mode='DISCARD', # DISCARD or MIXED or NONE
-                      infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
-                      discard_punctuation=True,
-                      output_unknown_unigrams=False,
-                      pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
-                      synonym_filter=False, mode_synonym='NORM') # NORM or EXTENSION
+nori = KoreanAnalyzer(
+           decompound_mode='DISCARD', # DISCARD or MIXED or NONE
+           infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
+           discard_punctuation=True,
+           output_unknown_unigrams=False,
+           pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
+           synonym_filter=False, mode_synonym='NORM', # NORM or EXTENSION
+       ) 
 
 print(nori.do_analysis("아빠가 방에 들어가신다."))
 ```
@@ -92,13 +94,14 @@ print(nori.do_analysis("AI 개발자")['termAtt'])
 # 디폴트 옵션: /pynori/config.ini 파일 참고
 
 from pynori.multiprocessor import KoreanAnalyzerMultiprocessing
-nori_mp = KoreanAnalyzerMultiprocessing(decompound_mode='MIXED', # DISCARD or MIXED or NONE
-		                                  infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
-		                                  #discard_punctuation=True,
-                                        #output_unknown_unigrams=False,
-                                        #pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
-                                        #synonym_filter=False, mode_synonym='NORM'
-)
+nori_mp = KoreanAnalyzerMultiprocessing(
+              decompound_mode='MIXED', # DISCARD or MIXED or NONE
+              infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
+              #discard_punctuation=True,
+              #output_unknown_unigrams=False,
+              #pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
+              #synonym_filter=False, mode_synonym='NORM'
+          )
 
 nori_mp.run(num_workers=3, 
             read_path="your/read/file/path", 
