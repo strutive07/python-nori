@@ -86,6 +86,32 @@ print(nori.do_analysis("AI 개발자")['termAtt'])
 # ['인공', '지능', 'ai', 'aritificial', 'intelligence', '개발', '자', 'developer']
 ```
 
+## Usage - Multiprocessing
+
+```python
+# 디폴트 옵션: /pynori/config.ini 파일 참고
+
+from pynori.multiprocessor import KoreanAnalyzerMultiprocessing
+nori_mp = KoreanAnalyzerMultiprocessing(decompound_mode='MIXED', # DISCARD or MIXED or NONE
+		                                  infl_decompound_mode='DISCARD', # DISCARD or MIXED or NONE
+		                                  #discard_punctuation=True,
+                                        #output_unknown_unigrams=False,
+                                        #pos_filter=False, stop_tags=['JKS', 'JKB', 'VV', 'EF'],
+                                        #synonym_filter=False, mode_synonym='NORM'
+)
+
+nori_mp.run(num_workers=3, 
+            read_path="your/read/file/path", 
+            write_path="your/write/file/path")
+
+# multiprocessing 은 file-to-file 포맷으로 실행
+# num_workers 를 통해 병렬 프로세스 개수 설정
+# line-by-line 으로 read. 각 line 의 텍스트는 문장으로 간주 (문서일 경우 처리 시간이 오래 걸리니 문장 분리기 활용 추천)
+# termAtt 만 출력. 뛰어쓰기가 된 토크나이징된 문자열을 출력 (다른 key 필요하면 multiprocessor.py 의 24 line 수정)
+```
+
+
+
 ## Resources
 
 * 시스템 사전은 `~/pynori/resources/mecab-ko-dic-2.1.1-20180720` 에서 수정
@@ -124,6 +150,7 @@ _원본 Nori 대비 개선 기능_
 * KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가
 * 동의어 필터링 - 대표어 처리 기능 추가
 * Unknown 길이가 무분별하게 길어지는 현상 해결
+* 병렬 처리 지원
 
 ## TODO
 
@@ -153,20 +180,21 @@ _원본 Nori 대비 개선 기능_
 | 버전             | 주요 내용             | 날짜     |
 | :-------------: | :-------------: | :-----: |
 | pynori 0.1.0    | 노리 기본 모듈 파이썬 포팅 & 유닛테스트 구현 완료 | Nov 17, 2019 |
-| pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9s)     | Apr 16, 2020 |
-| pynori 0.1.2    | infl_decompound_mode 모드 추가                        | Apr 23, 2020 |
-| pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가           | Apr 25, 2020 |
+| pynori 0.1.1    | KoreanAnalyzer 초기화 속도 향상 (1min 15s -> 12.9s)   | Apr 16, 2020 |
+| pynori 0.1.2    | infl_decompound_mode 모드 추가                       | Apr 23, 2020 |
+| pynori 0.1.3    | KoreanAnalyzer 옵션을 동적으로 제어하는 기능 추가     | Apr 25, 2020 |
 | pynori 0.2.0    | 동의어 처리 모듈 (SynonymGraphFilter) 추가           | Jun 6, 2020 |
 | pynori 0.2.1    | Long Unknown 토큰 완화 로직 추가        | Jul 19, 2020 |
+| pynori 0.2.4    | gc.disable로 초기화 속도 향상 (-> 5s) & 병렬 처리 지원     | Aug 18, 2021 |
 
-최신 Release 버전은 0.2.3 입니다.
 
 ## License
 
 * Apache License 2.0
 
 ## Reference
-1. (Github) [Lucene-solr - Nori](https://github.com/apache/lucene-solr/tree/master/lucene/analysis/nori)
+
+1. (Github) [Lucene-solr - Nori](https://github.com/apache/lucene/tree/main/lucene/analysis/nori)
 2. (Github) [Mecab-ko-dic](https://bitbucket.org/eunjeon/mecab-ko-dic/src/master/)
 3. (Blog) [엘라스틱서치 공식 한국어 분석 플러그인 '노리'](https://www.elastic.co/kr/blog/nori-the-official-elasticsearch-plugin-for-korean-language-analysis)
 4. (Blog) [노리(Nori) 형태소 분석기 Deep Dive](https://gritmind.blog/2020/07/22/nori_deep_dive/)

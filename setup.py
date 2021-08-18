@@ -19,11 +19,11 @@ long_description = """
 
 setup(
     name = 'pynori', 
-    version = '0.2.3', 
+    version = '0.2.4', 
 	
     url = 'https://github.com/gritmind/python-nori', 
     author = 'Yeongsu Kim', 
-    author_email = 'gritmind@gmail.com', 
+    author_email = 'gritmind@naver.com', 
 	
     description = 'Lucene Nori, Korean Mopological Analyzer, in Python', 
     #long_description=open('README.md', encoding='utf-8').read(), 
@@ -75,8 +75,6 @@ setup(
     # http://docs.python.org/3.4/distutils/setupscript.html#installing-additional-files # noqa
     # In this case, 'data_file' will be installed into '<sys.prefix>/my_data'
     data_files=[],
-
-
 )
 
 
