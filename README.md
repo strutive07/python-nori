@@ -104,8 +104,8 @@ nori_mp = KoreanAnalyzerMultiprocessing(
           )
 
 nori_mp.run(num_workers=3, 
-            read_path="your/read/file/path", 
-            write_path="your/write/file/path")
+            read_path="your/read/file/path.txt", 
+            write_path="your/write/file/path.txt")
 
 # multiprocessing 은 file-to-file 포맷으로 실행
 # num_workers 를 통해 병렬 프로세스 개수 설정
