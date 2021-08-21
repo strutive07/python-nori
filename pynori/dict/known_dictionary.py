@@ -2,11 +2,18 @@ import os
 import gzip
 import pickle
 import shlex
+from pathlib import Path
+from configparser import ConfigParser
 
 from pynori.dict.dictionary import Dictionary
 #from pynori.dict.character_definition import CharacterDefinition
-from pynori.dict.trie import Trie
-from pynori.pos import POS
+from pynori.dict.token_info_ds import DSManager
+
+cfg = ConfigParser()
+dir_path = Path(os.path.dirname(os.path.abspath(__file__)))
+PATH_CUR = str(dir_path.parent)
+cfg.read(PATH_CUR+'/config.ini')
+TOKEN_INFO_DS = cfg['OPTION']['TOKEN_INFO_DS']
 
 
 class KnownDictionary(Dictionary):
@@ -47,7 +54,7 @@ class KnownDictionary(Dictionary):
 		#charDef = CharacterDefinition()
 		#entries = sorted(entries)
 
-		self.sysTrie = Trie()
+		self.sysTokenInfo = DSManager.get_ds(TOKEN_INFO_DS)
 		
 		for token, morph_inf in entries:
 			if morph_inf['morphemes'] is not None:
@@ -55,10 +62,10 @@ class KnownDictionary(Dictionary):
 				for subpos, subword in morph_inf['morphemes']:
 					morphemes_list.append(Dictionary.Morpheme(posTag=subpos, surfaceForm=subword))
 				morph_inf['morphemes'] = morphemes_list
-			self.sysTrie.insert(token, morph_inf)
+			self.sysTokenInfo.insert(token, morph_inf)
 
 		"""
-		self.sysTrie = Trie()
+		self.sysTokenInfo = DSManager.get_ds("dict")
 		for entry in entries:
 			entry = entry.strip()
 
@@ -108,7 +115,7 @@ class KnownDictionary(Dictionary):
 
 			#morph_inf['analysis'] = splits[11]
 			# 짐수레꾼,1781,3535,2835,NNG,*,T,짐수레꾼,Compound,*,*,짐/NNG/*+수레/NNG/*+꾼/NNG/*
-			self.sysTrie.insert(token, morph_inf)
+			self.sysTokenInfo.insert(token, morph_inf)
 		"""
 
 """

@@ -15,8 +15,7 @@ class ConnectionCosts(object):
 	"""
 
 	@staticmethod
-	def open(COST_PATH): # 주의: self 는 여기서 필요없음.
-
+	def open(COST_PATH):
 		#total_entries = []
 		#path_list = []
 		#for dirName, subdirList, fileList in os.walk(COST_PATH):
@@ -38,9 +37,7 @@ class ConnectionCosts(object):
 		else:
 			return ConnectionCosts(total_entries)
 
-
 	def __init__(self, total_entries):
-		
 		#self.conCosts = dict()
 		#for entry in total_entries:
 		#	splits = entry.split()
@@ -50,12 +47,8 @@ class ConnectionCosts(object):
 		#	leftId = int(splits[1])
 		#	cost = int(splits[2])
 		#	self.conCosts[(rightId, leftId)] = cost
-
 		self.conCosts = total_entries # 딕셔너리 타입 저장.
 
-		
 	def get(self, rightId, leftId):
 		#return self.conCosts[(int(rightId), int(leftId))]
 		return self.conCosts[int(rightId)][int(leftId)]
-		
-		

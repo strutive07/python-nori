@@ -1,13 +1,20 @@
+import os
+from pathlib import Path
+from configparser import ConfigParser
+
 from pynori.dict.dictionary import Dictionary
 from pynori.dict.character_definition import CharacterDefinition
-from pynori.dict.trie import Trie
+from pynori.dict.token_info_ds import DSManager
 from pynori.pos import POS
+
+cfg = ConfigParser()
+dir_path = Path(os.path.dirname(os.path.abspath(__file__)))
+PATH_CUR = str(dir_path.parent)
+cfg.read(PATH_CUR+'/config.ini')
+TOKEN_INFO_DS = cfg['OPTION']['TOKEN_INFO_DS']
 
 
 class UserDictionary(Dictionary): 
-	"""Build User Dictionary
-	"""
-
 	WORD_COST = -100000
 	LEFT_ID = 1781 # NNG left
 	RIGHT_ID = 3533 # NNG right
@@ -36,20 +43,17 @@ class UserDictionary(Dictionary):
 		# 복합명사 우선 순위 & 중복 단어 제거를 위해 정렬
 		#entries = sorted(entries)
 		entries = sorted(entries, reverse=True)
-		self.userTrie = Trie()
+		self.userTokenInfo = DSManager.get_ds(TOKEN_INFO_DS)
 		lastToken = ""
-		segmentations = []
-		rightIds = []
-		ord = 0
-
+		#segmentations = []
+		#rightIds = []
+		#ord = 0
 		for entry in entries:
 			splits = entry.split()
 			token = splits[0]
 			rightId = ""
-		
 			if token == lastToken:
 			    continue
-		
 			lastChar = list(entry)[0]
 			if charDef.isHangul(lastChar):
 				if charDef.hasCoda(lastChar):
@@ -74,7 +78,6 @@ class UserDictionary(Dictionary):
 				if offset > len(token):
 					raise Exception("Illegal user dictionary entry '{}' - the segmentation is bigger than the surface form ({})".format(entry, token))
 				#segmentations.append(length)
-		
 			# add mapping to Trie (similar to FST)
 			morph_inf = dict()
 			morph_inf['surface'] = token
@@ -86,7 +89,7 @@ class UserDictionary(Dictionary):
 				morph_inf['POS_type'] = POS.Type.MORPHEME
 				#morph_inf['analysis'] = token
 				morph_inf['morphemes'] = None
-				self.userTrie.insert(token, morph_inf)
+				self.userTokenInfo.insert(token, morph_inf)
 			else:
 				morph_inf['POS_type'] = POS.Type.COMPOUND
 				#morph_inf['analysis'] = ' '.join(splits[1:]) # decompounded form
@@ -94,15 +97,12 @@ class UserDictionary(Dictionary):
 				for subword in splits[1:]:
 					morphemes_list.append(Dictionary.Morpheme(posTag=self.USER_POS, surfaceForm=subword))
 				morph_inf['morphemes'] = morphemes_list
-				self.userTrie.insert(token, morph_inf)
-				
+				self.userTokenInfo.insert(token, morph_inf)
 			lastToken = token
 			#ord += 1
-			
-		#self.userTrie = userTrie
+		#self.userTokenInfo = userTokenInfo
 		#self.segmentations = segmentations
 		#self.rightIds = rightIds
-		
 
 """
 	#@override
@@ -138,7 +138,3 @@ class UserDictionary(Dictionary):
 	def getRightPOS(self, wordId):
 		return POS.Tag.NNG
 """
-		
-		
-		
-		

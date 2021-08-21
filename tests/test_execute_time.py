@@ -20,7 +20,7 @@ from pynori.utils import *
 
 file_path = Path(os.path.dirname(os.path.abspath(__file__)))
 workspace_path = file_path.parent.parent.parent
-dataset_path = workspace_path.joinpath('dataset')
+dataset_path = workspace_path.joinpath('_dataset')
 pynori_test_path = dataset_path.joinpath('pynori_test')
 
 news_path = str(pynori_test_path) + '/news_body_1m.csv'

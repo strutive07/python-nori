@@ -6,7 +6,6 @@ import pickle
 import gzip
 from datetime import datetime
 
-
 cur_path = __file__
 back_1_path = '/'.join(cur_path.split('/')[:-2]) # ../resources/
 back_2_path = '/'.join(back_1_path.split('/')[:-1]) # ../pynori/
@@ -15,9 +14,9 @@ mecab_ko_dic_ver = 'mecab-ko-dic-2.1.1-20180720'
 
 sys.path.insert(0, back_2_path)
 from pos import POS
-sys.path.insert(0, back_2_path + '/dict')
-from trie import Trie
-from dictionary import Dictionary
+#sys.path.insert(0, back_2_path + '/dict')
+#from token_info_ds import DSManager
+#from dictionary import Dictionary
 
 
 ## pickle load & save
@@ -42,7 +41,7 @@ for dirName, subdirList, fileList in os.walk(back_1_path + '/' + mecab_ko_dic_ve
             PATH_EACH = dirName + '/' + fname
             total_entries += open(PATH_EACH, 'r', encoding='UTF8').readlines()
 
-#sysTrie = Trie()
+#sysTokenInfo = Trie()
 #print(len(total_entries))
 
 refined_data = []
@@ -99,13 +98,12 @@ for entry in total_entries:
 
     #morph_inf['analysis'] = splits[11]
     # 짐수레꾼,1781,3535,2835,NNG,*,T,짐수레꾼,Compound,*,*,짐/NNG/*+수레/NNG/*+꾼/NNG/*
-    #sysTrie.insert(token, morph_inf)
+    #sysTokenInfo.insert(token, morph_inf)
     refined_data.append([token, morph_inf])    
-
 
 # save and compress.
 #with gzip.open('mecab_csv.pkl', 'wb') as wf:
-#    pickle.dump(sysTrie, wf)
+#    pickle.dump(sysTokenInfo, wf)
 
 output_f_nm = 'mecab_csv.pkl'
 with gzip.open(back_1_path + '/pkl_mecab_csv/' + output_f_nm, 'wb') as wf:
@@ -113,11 +111,7 @@ with gzip.open(back_1_path + '/pkl_mecab_csv/' + output_f_nm, 'wb') as wf:
 
 #with gzip.open('mecab_csv_trie.pkl', 'rb') as rf:
 #    entries = pickle.load(rf) # csv 데이터를 포함한 Trie 자료구조.
-
 #print(entries)
 
 end_main = datetime.now()
 print('> {} is successfully generated! - {}'.format(output_f_nm, end_main - start_main))
-
-
-

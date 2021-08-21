@@ -20,7 +20,7 @@ pynori에 대한 이슈 사항은 [issue](https://github.com/gritmind/python-nor
 ## Install
 
 ```
-pip install pynori
+$ pip install pynori
 ```
 
 ## Usage
@@ -114,7 +114,6 @@ nori_mp.run(num_workers=3,
 ```
 
 
-
 ## Resources
 
 * 시스템 사전은 `~/pynori/resources/mecab-ko-dic-2.1.1-20180720` 에서 수정
@@ -127,13 +126,14 @@ nori_mp.run(num_workers=3,
 * 사용자 사전은 `~/pynori/resources/userdict_ko.txt` 에서 수정 (곧바로 적용 가능)
 * 동의어 사전은 `~/pynori/resources/synonyms.txt.txt` 에서 수정 (곧바로 적용 가능)
 
+
 ## Test
 
 ```
-git clone https://github.com/gritmind/python-nori.git
-cd python-nori
-python -m unittest -v pynori.tests.test_korean_analyzer
-python -m unittest -v pynori.tests.test_korean_tokenizer
+$ git clone https://github.com/gritmind/python-nori.git
+$ cd python-nori
+$ python -m unittest -v tests.test_korean_analyzer
+$ python -m unittest -v tests.test_korean_tokenizer
 ```
 
 ## Property
