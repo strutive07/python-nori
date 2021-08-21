@@ -13,8 +13,6 @@ class Dictionary(object): # Abstract Class
 	def __init__(self):
 		pass
 
-
-
 	class Morpheme(object):
 		"""A morpheme extracted from a compound token."""
 
@@ -30,12 +28,6 @@ class Dictionary(object): # Abstract Class
 		#	self.__dict__ = dct
 		#	#self.posTag = dct['posTag']
 		#	#self.surfaceForm = dct['surfaceForm']
-
-
-
-
-
-
 
 """
 	def getLeftId(self, wordId: "int") -> int:

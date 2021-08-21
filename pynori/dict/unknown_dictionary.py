@@ -1,7 +1,17 @@
+import os
+from pathlib import Path
+from configparser import ConfigParser
+
 from pynori.dict.dictionary import Dictionary
 from pynori.dict.character_definition import CharacterDefinition
-from pynori.dict.trie import Trie
+from pynori.dict.token_info_ds import DSManager
 from pynori.pos import POS
+
+cfg = ConfigParser()
+dir_path = Path(os.path.dirname(os.path.abspath(__file__)))
+PATH_CUR = str(dir_path.parent)
+cfg.read(PATH_CUR+'/config.ini')
+TOKEN_INFO_DS = cfg['OPTION']['TOKEN_INFO_DS']
 
 
 class UnknownDictionary(Dictionary):
@@ -27,7 +37,7 @@ class UnknownDictionary(Dictionary):
 	def __init__(self, entries):
 		charDef = CharacterDefinition()
 		entries = sorted(entries)
-		self.unkTrie = Trie()
+		self.unkTokenInfo = DSManager.get_ds(TOKEN_INFO_DS)
 
 		for entry in entries:
 			splits = entry.split(',')
@@ -37,11 +47,11 @@ class UnknownDictionary(Dictionary):
 			morph_inf['right_id'] = splits[2]
 			morph_inf['word_cost'] = int(splits[3])
 			morph_inf['POS'] = splits[4]
-			morph_inf['POS_type'] = POS.Type.MORPHEME # 임시방편으로 일단 이렇게 두자.
+			morph_inf['POS_type'] = POS.Type.MORPHEME # 임시방편
 			morph_inf['morphemes'] = None
 			# splits[0] : DEFAULT
 			# ','.join(splits[1:]) : 1801,3566,3640,SY,*,*,*,*,*,*,*
-			self.unkTrie.insert(splits[0], morph_inf)
+			self.unkTokenInfo.insert(splits[0], morph_inf)
 
 """
 	#@override
@@ -68,7 +78,3 @@ class UnknownDictionary(Dictionary):
 	def getRightPOS(self, wordId):
 		return None
 """
-		
-		
-		
-		

@@ -7,7 +7,6 @@ from configparser import ConfigParser
 
 #from enum import Enum, unique, auto 
 from pynori.char_unicode import *
-from pynori.dict.trie import Trie
 from pynori.dict.connection_costs import ConnectionCosts
 from pynori.dict.user_dictionary import UserDictionary
 from pynori.dict.known_dictionary import KnownDictionary
@@ -20,8 +19,6 @@ from pynori.token_attribute import TokenAttribute
 
 
 cfg = ConfigParser()
-#PATH_CUR = os.getcwd() + '/pynori'
-#PATH_CUR = sys.path[0]
 PATH_CUR = os.path.dirname(__file__)
 cfg.read(PATH_CUR+'/config.ini')
 
@@ -70,8 +67,8 @@ class KoreanTokenizer(object):
 	"""
 
 	# For safety
-	MAX_UNKNOWN_WORD_LENGTH = 1024;	
-	MAX_BACKTRACE_GAP = 1024;	
+	MAX_UNKNOWN_WORD_LENGTH = 1024
+	MAX_BACKTRACE_GAP = 1024
 	
 	def __init__(self, 
 				 verbose,
@@ -108,7 +105,7 @@ class KoreanTokenizer(object):
 		self.pending = []
 		# Add BOS
 		self.positions.get(0).add(0, 0, -1, -1, -1, -1, Type.KNOWN, None, None, None)
-		
+
 	def set_input(self, in_string):
 		"""Load input korean string to buffer."""
 
@@ -120,11 +117,11 @@ class KoreanTokenizer(object):
 			else:
 				new_string += ch
 		#in_string = in_string.replace('\xa0', ' ')
-		
+
 		self.buffer.set(new_string)
 		#self.buffer.set(in_string)
 		self.reset_state()
-		
+
 
 	class Buffer(object):
 		"""Bring the input korean text."""
@@ -413,10 +410,10 @@ class KoreanTokenizer(object):
 			print("\nPARSE")
 		
 		# Index of the last character of unknown word:
-		unknownWordEndIndex = -1;
+		unknownWordEndIndex = -1
 		
 		# Maximum posAhead of user word in the entire input
-		userWordMaxPosAhead = -1;
+		userWordMaxPosAhead = -1
 		
 		## Advances over each position (character):
 		while True:
@@ -522,14 +519,14 @@ class KoreanTokenizer(object):
 					if ch == -1:
 						break
 
-					_, userIdRef = self.user_dict.userTrie.search(self.buffer.slice_get(self.pos, posAhead + 1))
+					_, userIdRef = self.user_dict.userTokenInfo.search(self.buffer.slice_get(self.pos, posAhead + 1))
 					# 주의: [{'surface': '위메이크프라이스', 'left_id': 1781, 'right_id': 3534, 'word_cost': -100000, 'POS': 'NNG', 'POS_type': 'UnitTerm', 'analysis': '위메이크프라이스'}]
 					# 리스트 안에 하나의 dict 들어가 있음을 주의!
 					if userIdRef is not None: # Trie 결과는 항상 None 아니면 리스트 이다.
 						maxPosAhead = posAhead
 						#outputMaxPosAhead = output
 						#arcFinalOutMaxPosAhead = arc.nextFinalOutput.intValue()
-						lastResult = userIdRef.result[0] # 사용자 단어는 항상 유니크하므로 1개밖에 없다.
+						lastResult = userIdRef[0] # 사용자 단어는 항상 유니크하므로 1개밖에 없다.
 						anyMatches = True
 
 					posAhead += 1
@@ -569,12 +566,12 @@ class KoreanTokenizer(object):
 			        # dictionary instead of recomputing it each time a
 			        # match is found.
 
-					_, wordIdRef = self.kn_dict.sysTrie.search(self.buffer.slice_get(self.pos, posAhead+1))
+					_, wordIdRef = self.kn_dict.sysTokenInfo.search(self.buffer.slice_get(self.pos, posAhead+1))
 					if wordIdRef is not None:
 						if self.verbose:
 						#if True:
 							print("    KNOWN word " + self.buffer.slice_get(self.pos, posAhead - self.pos + 1) + " toPos=" + str(posAhead + 1) + " " + str(len(wordIdRef)) + " wordIDs")
-						for each in wordIdRef.result:
+						for each in wordIdRef:
 							self.add(each, posData, self.pos, posAhead+1, None, Type.KNOWN)
 							anyMatches = True
 
@@ -622,8 +619,8 @@ class KoreanTokenizer(object):
 
 						posAhead += 1
 
-				_, wordIdRef = self.unk_dict.unkTrie.search(characterId)
-				wordIdRef = wordIdRef.result[0] # unknown은 항상 1개 밖에 없다.
+				_, wordIdRef = self.unk_dict.unkTokenInfo.search(characterId)
+				wordIdRef = wordIdRef[0] # unknown은 항상 1개 밖에 없다.
 				if self.verbose:
 					print("    UNKNOWN word len=" + str(unknownWordLength) + " " + str(len(wordIdRef)) + " wordIDs")
 				self.add(wordIdRef, posData, self.pos, self.pos + unknownWordLength, None, Type.UNKNOWN)
@@ -803,8 +800,8 @@ class KoreanTokenizer(object):
 				# Add a token for whitespaces between terms
 				offset = backPos - self.last_backtrace_pos
 				len_ = backWordPos - backPos
-				_, wordIdRef = self.unk_dict.unkTrie.search('SPACE')
-				wordIdRef = wordIdRef.result[0]
+				_, wordIdRef = self.unk_dict.unkTokenInfo.search('SPACE')
+				wordIdRef = wordIdRef[0]
 				spaceToken = DictionaryToken(dictType=Type.UNKNOWN, dictionary=None, wordId=None, surfaceForm=' ', 
 											 offset=offset, length=len_, startOffset=backPos, endOffset=backPos+len_, 
 											 posType=POS.Type.MORPHEME, morphemes=None, posTag=wordIdRef['POS'])
@@ -838,8 +835,8 @@ class KoreanTokenizer(object):
 		특수문자 토큰들을 제거하기 위한 함수 (ex. '.', '-', '#', '*', '---', '****' ...)
 		사용자 사전 특징으로 특수문자가 포함된 토큰들이 사용자 단어로 지정될 수 있음 (ex. '안녕#', '!노리', '형#태소')
 
-		self.user_dict.userTrie.search() 함수를 사용해서 체크한 뒤, filter 여부 결정이 필요. (이상적인 구현임)
-		(그러나) 사용자 사전에 특수문자가 포함된 토큰들이 없다면, 위 userTrie.search() 함수 사용은 속도 저하를 일으킴.
+		self.user_dict.userTokenInfo.search() 함수를 사용해서 체크한 뒤, filter 여부 결정이 필요. (이상적인 구현임)
+		(그러나) 사용자 사전에 특수문자가 포함된 토큰들이 없다면, 위 userTokenInfo.search() 함수 사용은 속도 저하를 일으킴.
 		(따라서) 단순하게, 아래와 같이 '하나라도 punctuation'이 있으면 삭제하는 방법 선택.
 
 		사용자 사전 작성 정책에 따라서 (특수문자 부분) 이 함수의 정의가 달라져야 함.

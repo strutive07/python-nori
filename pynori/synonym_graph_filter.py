@@ -2,7 +2,7 @@ import os
 from copy import deepcopy
 
 from configparser import ConfigParser
-from pynori.dict.trie import Trie
+from pynori.dict.token_info_ds import Trie
 from pynori.token_attribute import TokenAttribute
 
 cfg = ConfigParser()
@@ -81,6 +81,7 @@ class SynonymGraphFilter(object):
 				trie_result = [tkn_attr_obj_list[0]] # 첫 번째 토큰을 동의어 대표어
 
 			for tkn_attr_obj in tkn_attr_obj_list: # result
+
 				self.syn_trie.insert(self.SEP_CHAR.join(tkn_attr_obj.termAtt), trie_result)
 
 	def _set_token_attribute(self, source, target, idx):
@@ -140,7 +141,7 @@ class SynonymGraphFilter(object):
 					# 			token += self.SEP_CHAR
 					# 			token += token_list[n+1]
 
-					for trie_tkn_attrs in node.result[0]:
+					for trie_tkn_attrs in node[0]:
 						for k, _ in enumerate(trie_tkn_attrs.termAtt):
 							new_tkn_attrs = self._set_token_attribute(trie_tkn_attrs, new_tkn_attrs, k)
 					step = n+1
