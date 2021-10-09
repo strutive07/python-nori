@@ -63,6 +63,10 @@ class KnownDictionary(Dictionary):
 					morphemes_list.append(Dictionary.Morpheme(posTag=subpos, surfaceForm=subword))
 				morph_inf['morphemes'] = morphemes_list
 			self.sysTokenInfo.insert(token, morph_inf)
+		print('build known dictioanry')
+		self.sysTokenInfo.load('/workspaces/python-nori/known_dictionary.dart')
+		# self.sysTokenInfo.build()
+		# self.sysTokenInfo.save('/workspaces/python-nori/known_dictionary.dart')
 
 		"""
 		self.sysTokenInfo = DSManager.get_ds("dict")

@@ -83,6 +83,7 @@ class SynonymGraphFilter(object):
 			for tkn_attr_obj in tkn_attr_obj_list: # result
 
 				self.syn_trie.insert(self.SEP_CHAR.join(tkn_attr_obj.termAtt), trie_result)
+		self.syn_trie.build()
 
 	def _set_token_attribute(self, source, target, idx):
 		for name, _ in target.__dict__.items():

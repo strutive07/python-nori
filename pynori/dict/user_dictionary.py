@@ -99,6 +99,7 @@ class UserDictionary(Dictionary):
 				morph_inf['morphemes'] = morphemes_list
 				self.userTokenInfo.insert(token, morph_inf)
 			lastToken = token
+		self.userTokenInfo.build()
 			#ord += 1
 		#self.userTokenInfo = userTokenInfo
 		#self.segmentations = segmentations

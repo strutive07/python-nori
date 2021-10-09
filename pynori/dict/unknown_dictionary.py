@@ -52,6 +52,7 @@ class UnknownDictionary(Dictionary):
 			# splits[0] : DEFAULT
 			# ','.join(splits[1:]) : 1801,3566,3640,SY,*,*,*,*,*,*,*
 			self.unkTokenInfo.insert(splits[0], morph_inf)
+		self.unkTokenInfo.build()
 
 """
 	#@override

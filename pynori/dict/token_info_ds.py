@@ -1,4 +1,6 @@
 
+import sys
+sys.path.append('/workspaces/python-nori')
 from abc import abstractmethod
 
 
@@ -12,6 +14,9 @@ class DSManager:
             return Trie()
         elif name == "py-dict":
             return Dict()
+        elif name == 'dart':
+            from pynori.dict.dart import DoubleArrayTrieSystem
+            return DoubleArrayTrieSystem()
         elif name == "fst":
             print("fst is not implemented yet")
             exit()
@@ -22,6 +27,9 @@ class TokenInfoDSBase:
 		pass
 	@abstractmethod
 	def search(self):
+		pass
+	@abstractmethod
+	def build(self):
 		pass
 
 
@@ -42,6 +50,8 @@ class Dict(TokenInfoDSBase):
                 return (True, self.mydict[string])
         else:
             return (False, None)
+    def build(self):
+        pass
 
 
 class Trie(TokenInfoDSBase):
@@ -72,6 +82,8 @@ class Trie(TokenInfoDSBase):
         if cur_node.data is not None:
             return (True, cur_node.result) # cur_node.result or cur_node.flag
         return (True, None)
+    def build(self):
+        pass
 
 class Node:
     def __init__(self, key, data=None, result=None):
@@ -87,7 +99,7 @@ class Node:
 
 if __name__ == "__main__":
 
-    test_trie = DSManager.get_ds("py-dict")
+    test_trie = DSManager.get_ds("dart")
 
     token_list = ['자연어처리', '자연', '인공지능', '자', '자연어처리하자']
 
@@ -100,6 +112,7 @@ if __name__ == "__main__":
 
     for token in token_list:
         test_trie.insert(token, token_info[token])
+    test_trie.build()
 
     ##
     token_list.append("헬로우")

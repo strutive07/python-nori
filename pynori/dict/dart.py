@@ -1,6 +1,15 @@
+import sys
+import pickle
+sys.path.append('/workspaces/python-nori')
+
+import numpy as np
+from tqdm import tqdm
+
 from dataclasses import dataclass
+from pynori.dict.token_info_ds import TokenInfoDSBase
 from typing import List, Tuple
 
+ARRAY_DTYPE = np.dtype([('base', np.int), ('check', np.uintc)])
 
 @dataclass
 class Node:
@@ -17,7 +26,7 @@ class Node:
 
 
 
-class DoubleArrayTrieSystem:
+class DoubleArrayTrieSystem(TokenInfoDSBase):
     def __init__(self):
         self.keys: List[List[int]] = []
         self.sizes: List[int] = []
@@ -26,13 +35,32 @@ class DoubleArrayTrieSystem:
         self.next_check_pos: int = 0
         self.progress: int = 0
         self.size_ = 0
-        self.array = []
-        self.used = []
+        self.array = np.zeros([], dtype=ARRAY_DTYPE)
+        self.used = np.zeros([], dtype=np.bool)
         self.tokens: List[str] = []
+        self.dict_pair = []
 
     def resize(self, size: int):
-        self._resize(size, self.array, 'array')
-        self._resize(size, self.used, 'bool')
+        self.array = np.resize(self.array, size)
+        self.used = np.resize(self.used, size)
+    
+    def getsizeof(self):
+        return sys.getsizeof(self.array) + sys.getsizeof(self.used)
+    
+    def save(self, filepath):
+        with open(filepath, 'wb') as f:
+            dump_data = {
+                'array': self.array,
+                'tokens': self.tokens
+            }
+            pickle.dump(dump_data, f)
+    
+    def load(self, filepath):
+        with open(filepath, 'rb') as f:
+            dump_data = pickle.load(f)
+        
+        self.array = dump_data['array']
+        self.tokens = dump_data['tokens']
     
     def _resize(self, size, target, default_value):
         if len(target) <= size:
@@ -56,8 +84,8 @@ class DoubleArrayTrieSystem:
         return [ord(char) for char in string]
         # return [char for char in string.encode('utf-8')]
 
-    def build(self, dict_pair: List[Tuple[str, str]]):
-        dict_pair = sorted(dict_pair)
+    def build(self):
+        dict_pair = sorted(self.dict_pair, key=lambda x: x[0])
         bsize = 0
         idx = 0
 
@@ -83,6 +111,10 @@ class DoubleArrayTrieSystem:
         val_list.append(bsize + (idx << 16))
 
         self._build(str_list, len_list, val_list)
+        print(len(self.array))
+    
+    def insert(self, string, result):
+        self.dict_pair.append((string, result))
 
     def _build(self, keys: List[str], sizes: List[int],
               key_token_sizes: List[int]):
@@ -94,20 +126,24 @@ class DoubleArrayTrieSystem:
         Returns:
             error: Indicate build successfully finished. If this value is non-zero, build is failed.
         """
+        print(len(keys), len(sizes), len(key_token_sizes))
         self.keys = [self.decompose_string_to_utf8(key) for key in keys]
         self.sizes = [len(k) for k in self.keys]
         self.key_token_sizes = key_token_sizes
         self.progress = 0
-        self.resize(65535)
+        self.resize(131072)
 
         self.array[0][0] = 1
         self.next_check_pos = 0
         root_node = Node(code=0, left=0, right=len(keys), depth=0)
         siblings = []
         self.fetch(root_node, siblings)
-        self.insert(siblings)
+        print('fetch done', self.getsizeof() / 1024 / 1024)
 
-        self.size_ += (1 << 16) + 1
+        self._insert(siblings)
+        print('insert done', self.getsizeof() / 1024 / 1024)
+
+        self.size_ += (1 << 17) + 1
 
         if self.size_ >= len(self.array):
             self.resize(self.size_)
@@ -164,7 +200,8 @@ class DoubleArrayTrieSystem:
 
         return len(siblings)
 
-    def insert(self, siblings: List[Node]) -> int:
+    
+    def _insert(self, siblings: List[Node]) -> int:
         """ Insert prefetch siblings into parent node.
         Assign base and check values.
         Args:
@@ -181,6 +218,7 @@ class DoubleArrayTrieSystem:
         first: bool = True
 
         if len(self.array) <= pos:
+            print('resize', len(self.array), pos, siblings[0].code, self.getsizeof() / 1024 / 1024)
             self.resize(pos + 1)
         
         iter_count = 0
@@ -190,6 +228,7 @@ class DoubleArrayTrieSystem:
             pos += 1
 
             if len(self.array) <= pos:
+                print('resize', len(self.array), pos, siblings[0].code, self.getsizeof() / 1024 / 1024)
                 self.resize(pos + 1)
 
             if self.array[pos][1]:
@@ -202,14 +241,17 @@ class DoubleArrayTrieSystem:
             begin = pos - siblings[0].code
 
             if len(self.array) <= (begin + siblings[-1].code):
+                print('before resize', len(self.array), pos, siblings[0].code, self.getsizeof() / 1024 / 1024)
                 self.resize(
                     len(self.array) *
                     int(max(1.05, 1.0 * len(self.keys) / (self.progress + 1))))
+                print('after resize', len(self.array), pos, siblings[0].code, self.getsizeof() / 1024 / 1024)
 
             if self.used[begin]:
                 continue
 
             for i in range(1, len(siblings)):
+                # print(len(self.array), begin + siblings[i].code)
                 if self.array[begin + siblings[i].code][1] != 0:
                     is_pass = False
                     break
@@ -232,11 +274,16 @@ class DoubleArrayTrieSystem:
         for i in range(0, len(siblings)):
             self.array[begin + siblings[i].code][1] = begin
 
-        for i in range(0, len(siblings)):
+
+        iters = range(0, len(siblings))
+        if begin == 1:
+            iters = tqdm(iters, total=len(siblings))
+
+        for i in iters:
             new_siblings: List[Node] = []
 
             if self.fetch(siblings[i], new_siblings):
-                h: int = self.insert(new_siblings)
+                h: int = self._insert(new_siblings)
                 self.array[begin + siblings[i].code][0] = h
             else:
                 self.array[begin + siblings[i].code][0] = (
@@ -252,7 +299,7 @@ class DoubleArrayTrieSystem:
 
         return begin
 
-    def exact_match_search(self, key: str, size: int = 0, node_pos: int = 0):
+    def search(self, key: str):
         """ Find exact match string in trie.
         Args:
             key: search key for exact match
@@ -265,6 +312,8 @@ class DoubleArrayTrieSystem:
                 'len': int. input key's length
             }
         """
+        size: int = 0
+        node_pos: int = 0
         key = self.decompose_string_to_utf8(key)
         if not size:
             size = len(key)
@@ -279,14 +328,20 @@ class DoubleArrayTrieSystem:
             if base == self.array[pointer][1]:
                 base = self.array[pointer][0]
             else:
-                return results
+                if len(results) != 0:
+                    return (True, results)
+                else:
+                    return (False, None)
         pointer = base
         value = self.array[pointer][0]
 
         if base == self.array[pointer][1] and value < 0:
             results.extend(self.get_tokens(-value - 1))
 
-        return results
+        if len(results) != 0:
+            return (True, results)
+        else:
+            return (False, None)
 
     def common_prefix_search(self,
                              key: str,
@@ -363,15 +418,13 @@ if __name__ == "__main__":
     token_info['자연어처리하자'] = ['<자연어처리하자 - 토큰 정보>']
     
 
-    dict_pair = []
-
     for parent in token_list:
         for token in token_info[parent]:
-            dict_pair.append((parent, token))
+            da.insert(parent, token)
     
-    da.build(dict_pair)
+    da.build()
     token_list.append("헬로우")
     for token in token_list:
         print(token)
-        print(da.exact_match_search(token))
+        print(da.search(token))
         print('\n')
